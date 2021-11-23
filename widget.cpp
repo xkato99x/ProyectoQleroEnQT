@@ -821,8 +821,47 @@ void Widget::on_btnAnalizar_clicked()
 
 
 
-    QString patas = ui->table->item(10,2)->text();
+    QString patas = ui->table->item(10,1)->text();
     qInfo() << "\nItem: " << patas;
+
+    semantico();
+}
+
+void Widget::semantico(){
+    qInfo() << "\n\nEMPIEZA EL SEMÁNTICO\n";
+    bool buliano = false;
+    QList<QString> operadores;
+    QList<QString> operandos;
+    QList<int> saltos;
+    for (int i = 0; i < ui->table->rowCount()-1; i++) {
+        if (ui->table->item(i,1)->text() == "def"){
+            qInfo() << "hay def";
+            buliano = true;
+        } else if (ui->table->item(i,1)->text() == ";"){
+            buliano = false;
+        }
+        if (buliano == true) {
+            if (ui->table->item(i,1)->text() != "," && ui->table->item(i,0)->text() == "101"){ //METER OPERANDOS
+                operandos.append(ui->table->item(i,1)->text());
+            }
+            if (ui->table->item(i,1)->text() != "," && ui->table->item(i,0)->text() == "100" && ui->table->item(i,1)->text() != "def" &&
+                    ui->table->item(i,1)->text() != "as"){
+                operadores.append(ui->table->item(i,1)->text());
+            }
+        }
+
+    }
+
+    //CICLO PARA VER LO QUE TIENE OPERANDOS
+    for (int i = 0; i < operandos.length() ; i++) {
+        qInfo() << "Operando en i: " << operandos.at(i) << "\n";
+    }
+
+    //CICLO PARA VER LOS OPERADORES
+    for (int i = 0; i < operadores.length(); i++) {
+        qInfo() << "    Operador en i: " << operadores.at(i) << "\n";
+
+    }
 }
 
 QList<int> Widget::producciones(int e)
