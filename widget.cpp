@@ -405,7 +405,7 @@ void Widget::on_btnAnalizar_clicked()
     }
     cad = "";
 
-    qInfo() << "Cadena (cd):" << cd << "; Longitud:" << cd.length() << "\n";
+    // qInfo() << "Cadena (cd):" << cd << "; Longitud:" << cd.length() << "\n";
 
     std::string aux = cd.toStdString();
     char car [aux.length()];
@@ -418,7 +418,7 @@ void Widget::on_btnAnalizar_clicked()
 
     // AQUI EMPEIZA A ANALIZAR EL VECTOR DE CHAR
     for (int i = 0; i <= aux.length()-1; i++) {
-        qInfo() << "\nCar[" << i << "]" << ":" << car[i];
+        // qInfo() << "\nCar[" << i << "]" << ":" << car[i];
 
         if(estado > 550 || estado < 0){
             estado = 0;
@@ -428,9 +428,9 @@ void Widget::on_btnAnalizar_clicked()
         columna = relaciona(car[i], columna);
         estado = Matriz(estado,columna);
         //qInfo() << "        Valor de Columna:" << columna << "  Valor de Estado" << estado;
-        qInfo() << "        Valor de Estado:" << estado << "    Valor de Columna:" << columna;
+        // qInfo() << "        Valor de Estado:" << estado << "    Valor de Columna:" << columna;
         cad += car[i];
-        qInfo() << "            Valor de cad: " << cad;
+        // qInfo() << "            Valor de cad: " << cad;
         QString caaarmeeeen = cad;
         bool ver = false, ver2 = false;
 
@@ -442,7 +442,7 @@ void Widget::on_btnAnalizar_clicked()
                 if (estado < 100){
                     int provCol = relaciona(car[i+1], columna);
                     estado = Matriz(estado, provCol);
-                    qInfo() << "¿¿¿¿¿";
+                    // qInfo() << "¿¿¿¿¿";
                 }
             }
             if ((car[i] == '<' || car[i] == '>' || car[i] == '(' || car[i] == ')' || car[i] == '*') &&
@@ -451,13 +451,13 @@ void Widget::on_btnAnalizar_clicked()
                 if (estado < 100){
                     int provCol = relaciona(car[i+1], columna);
                     estado = Matriz(estado, provCol);
-                    qInfo() << "????";
+                    // qInfo() << "????";
                 }
             }
         }
 
         cadenita = cad;
-        qInfo() << "                    Cadenita hasta el momento:" << cadenita;
+        // qInfo() << "                    Cadenita hasta el momento:" << cadenita;
 
         if (estado == 100){
             bool verif = true;
@@ -748,42 +748,42 @@ void Widget::on_btnAnalizar_clicked()
     NextToken.insert(NextToken.size(),1071);
 
     for (int i = 0; i < NextToken.size(); i++) {
-        qInfo() << "Iteración:" << i << "\n    Valor de token:" << NextToken.at(i) << "\n";
+        // qInfo() << "Iteración:" << i << "\n    Valor de token:" << NextToken.at(i) << "\n";
     }
 
-    qInfo() << "NextToken ya tiene todo";
+    // qInfo() << "NextToken ya tiene todo";
     //QMessageBox msgBx; msgBx.setText(texto); msgBx.exec();
 
     QList<int> pila; pila.insert(0, 1071); pila.insert(1, 0);
 
     int iteracion = 0; int sizeNT = NextToken.size();
     while (!pila.isEmpty()){
-        qInfo() << "\nIteración " << iteracion;
+        // qInfo() << "\nIteración " << iteracion;
 
         int valPila = pila.at(pila.size()-1);
         int valNT = NextToken.value(0);
 
-        qInfo() << "TOPE DE LA PILA:" << valPila;
+        // qInfo() << "TOPE DE LA PILA:" << valPila;
         for (int i = 0; i < pila.size(); i++) {
-            qInfo() << "    Pila en [" << i << "]:" << pila.at(i);
+            // qInfo() << "    Pila en [" << i << "]:" << pila.at(i);
         }
 
-        qInfo() << "PRIMERO DE NEXTTOKEN:" << valNT;
-        qInfo() << "SIZE DE PILA:"<< pila.size();
-        qInfo() << "SIZE DE NEXTTOKEN:" << NextToken.size();
-        qInfo() << "ITERACIÓN DE NEXTTOKEN:" << sizeNT - NextToken.size();
+        // qInfo() << "PRIMERO DE NEXTTOKEN:" << valNT;
+        // qInfo() << "SIZE DE PILA:"<< pila.size();
+        // qInfo() << "SIZE DE NEXTTOKEN:" << NextToken.size();
+        // qInfo() << "ITERACIÓN DE NEXTTOKEN:" << sizeNT - NextToken.size();
 
         if (valPila >= 1000){
             qInfo() << "    Pila =" << valPila << "; es mayor o igual a 1000";
             if ((valPila == valNT) && (valNT == 1071)){
-                qInfo() << "            Input correcto! :D";
+                // qInfo() << "            Input correcto! :D";
                 sint *correcto = new sint;
                 correcto->show();
                 pila.removeLast();
                 NextToken.removeFirst();
             } else {
                 if ((valPila == valNT) && (valNT != 1071)){
-                    qInfo() << "        PILA = TOKEN; Remueve el último de PILA(" << valPila << ") & NEXTTOKEN (" << valNT << ")";
+                    // qInfo() << "        PILA = TOKEN; Remueve el último de PILA(" << valPila << ") & NEXTTOKEN (" << valNT << ")";
                     pila.removeLast();
                     NextToken.removeFirst();
                 } else {
@@ -796,17 +796,17 @@ void Widget::on_btnAnalizar_clicked()
                 }
             }
         } else if (valPila == -1){
-            qInfo() << "            Se remueve el último porque es -1";
+            // qInfo() << "            Se remueve el último porque es -1";
             pila.removeLast();
         } else if (valPila <= 113){
-            qInfo() << "    Pila = " << valPila << "; es menor o igual a 113";
+            // qInfo() << "    Pila = " << valPila << "; es menor o igual a 113";
             int x = MPredictiva(valPila,valNT-1000);
-            qInfo() << "        Matriz predicriva va a:" << x << ", con x";
+            // qInfo() << "        Matriz predicriva va a:" << x << ", con x";
             if (x >= 0 && x <= 113){
                 pila.removeLast();
                 QList<int> aux = producciones(x);
                 for(int i = 0; i < aux.size(); i++){
-                    qInfo() << "        Aux en {" << i << "]: " << aux.value(i);
+                    // qInfo() << "        Aux en {" << i << "]: " << aux.value(i);
                     pila.insert(pila.size(),aux.value(i));
                 }
             } else {
@@ -816,8 +816,8 @@ void Widget::on_btnAnalizar_clicked()
         iteracion++;
     }
 
-    qInfo() << "SIZE DE PILA:"<< pila.size();
-    qInfo() << "SIZE DE NEXTTOKEN:" << NextToken.size();
+    // qInfo() << "SIZE DE PILA:"<< pila.size();
+    // qInfo() << "SIZE DE NEXTTOKEN:" << NextToken.size();
 
 
 
@@ -832,36 +832,79 @@ void Widget::semantico(){
     bool buliano = false;
     QList<QString> operadores;
     QList<QString> operandos;
+    QList<QString> oprsSeparador;
+    QList<QString> tipo;
     QList<int> saltos;
+    QList<QString> semOpnd = {"quitar"};
+    QList<QString> semOpndSeparador;
+    int contador = 0;
     for (int i = 0; i < ui->table->rowCount()-1; i++) {
         if (ui->table->item(i,1)->text() == "def"){
-            qInfo() << "hay def";
             buliano = true;
         } else if (ui->table->item(i,1)->text() == ";"){
             buliano = false;
         }
         if (buliano == true) {
-            if (ui->table->item(i,1)->text() != "," && ui->table->item(i,0)->text() == "101"){ //METER OPERANDOS
+            if (ui->table->item(i,0)->text() == "101"){ //METER OPERANDOS
                 operandos.append(ui->table->item(i,1)->text());
+                contador++;
             }
-            if (ui->table->item(i,1)->text() != "," && ui->table->item(i,0)->text() == "100" && ui->table->item(i,1)->text() != "def" &&
-                    ui->table->item(i,1)->text() != "as"){
-                operadores.append(ui->table->item(i,1)->text());
+            if (ui->table->item(i,1)->text() == "as"){ //INSERTAR EL TIPO DE LAS VARIABLES
+                for (int j = 0; j < contador; j++) {
+                    tipo.append(ui->table->item(i+1,1)->text());
+                }
+                contador = 0;
+            }
+        } else {
+            if (ui->table->item(i,1)->text() == "+"  || ui->table->item(i,1)->text() == "-"  || ui->table->item(i,1)->text() == "*"  ||
+                    ui->table->item(i,1)->text() == "/" || ui->table->item(i,1)->text() == "=" || ui->table->item(i,1)->text() == "+=" ||
+                    ui->table->item(i,1)->text() == ";"){
+                if (ui->table->item(i,1)->text() != ";"){
+                    operadores.append(ui->table->item(i,1)->text());
+                    oprsSeparador.append(" ");
+                    qInfo() << "Elemento arriba: " << ui->table->item(i-1,1)->text() << ", tipo: " << ui->table->item(i-1,0)->text();
+                    qInfo() << "    semOpnd -1: " << semOpnd.at(semOpnd.length()-1);
+                    qInfo() << "        Elemento abajo" << ui->table->item(i+1,1)->text() << ", tipo: " << ui->table->item(i+1,0)->text() << "\n";
+                    if (ui->table->item(i-1,0)->text() == "101"){
+                        semOpnd.append(ui->table->item(i-1,1)->text());
+                        semOpndSeparador.append(" ");
+                    }
+                } else {
+                    if (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  ||
+                        ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
+                        ui->table->item(i-2,1)->text() == "+="){
+                        oprsSeparador.removeLast();
+                        oprsSeparador.append(";");
+                    }
+                    if (ui->table->item(i-1,0)->text() == "101" && (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  ||
+                        ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
+                        ui->table->item(i-2,1)->text() == "+=")){
+                        semOpnd.append(ui->table->item(i-1,1)->text());
+                        semOpndSeparador.append(";");
+                    }
+                }
             }
         }
-
     }
+    semOpnd.removeFirst();
 
     //CICLO PARA VER LO QUE TIENE OPERANDOS
     for (int i = 0; i < operandos.length() ; i++) {
-        qInfo() << "Operando en i: " << operandos.at(i) << "\n";
+        qInfo() << "Operando en " << i << operandos.at(i) << ", tipo #" << i << tipo.at(i) << "\n";
     }
+
+    //CICLO PARA VER LOS TIPOS
 
     //CICLO PARA VER LOS OPERADORES
     for (int i = 0; i < operadores.length(); i++) {
-        qInfo() << "    Operador en i: " << operadores.at(i) << "\n";
-
+        qInfo() << "        Operador en " << i << operadores.at(i) << ", " << oprsSeparador.at(i) << "\n";
     }
+
+    //CICLO PARA VER LOS OPERANDOS PARA LAS OPERACIONES
+    for (int i = 0; i < semOpnd.length(); i++) {
+        qInfo() << "            Operando en " << i << semOpnd.at(i) << ", " << semOpndSeparador.at(i) << "\n";
+    }
+
 }
 
 QList<int> Widget::producciones(int e)
