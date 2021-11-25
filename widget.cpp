@@ -22,6 +22,11 @@ Widget::Widget(QWidget *parent)
     ui->table->setColumnCount(3);
     ui->table->setHorizontalHeaderLabels(titulos);
     ui->table->resizeColumnsToContents();
+
+    QStringList titulosTablaTipos; titulosTablaTipos << "Variable" << "Tipos" << "                      Errores                      ";
+    ui->tablaTipos->setColumnCount(3);
+    ui->tablaTipos->setHorizontalHeaderLabels(titulosTablaTipos);
+    ui->tablaTipos->resizeColumnsToContents();
 }
 
 Widget::~Widget()
@@ -145,7 +150,7 @@ QString Token (int e){
     case 100 :
         token = "Aceptación 100: Palabra reservada.";
         for (int j = 0; j < pRes.size(); j++) {
-//{"if","else","for","class","int","float","char","long","double","String","boolean","while","public","private","extends","package","import","break","case","null","switch","return"};
+            //{"if","else","for","class","int","float","char","long","double","String","boolean","while","public","private","extends","package","import","break","case","null","switch","return"};
             if (cadenita == pRes.at(j)){
                 //qInfo() << "                Palabra reservada global: " << pReserv[j];
                 token = "Aceptación 100: Palabra reservada.";
@@ -159,7 +164,7 @@ QString Token (int e){
     case 101:
         token = "Aceptación 101: Identificador.";
         for (int j = 0; j < pRes.size(); j++) {
-//{"if","else","for","class","int","float","char","long","double","String","boolean","while","public","private","extends","package","import","break","case","null","switch","return"};
+            //{"if","else","for","class","int","float","char","long","double","String","boolean","while","public","private","extends","package","import","break","case","null","switch","return"};
             if (cadenita == pRes.at(j)){
                 j = 35;
                 token = "Aceptación 100: Palabra reservada.";
@@ -777,8 +782,8 @@ void Widget::on_btnAnalizar_clicked()
             qInfo() << "    Pila =" << valPila << "; es mayor o igual a 1000";
             if ((valPila == valNT) && (valNT == 1071)){
                 // qInfo() << "            Input correcto! :D";
-                sint *correcto = new sint;
-                correcto->show();
+                //sint *correcto = new sint;
+                //correcto->show();
                 pila.removeLast();
                 NextToken.removeFirst();
             } else {
@@ -862,23 +867,23 @@ void Widget::semantico(){
                 if (ui->table->item(i,1)->text() != ";"){
                     operadores.append(ui->table->item(i,1)->text());
                     oprsSeparador.append(" ");
-                    qInfo() << "Elemento arriba: " << ui->table->item(i-1,1)->text() << ", tipo: " << ui->table->item(i-1,0)->text();
+                    /*qInfo() << "Elemento arriba: " << ui->table->item(i-1,1)->text() << ", tipo: " << ui->table->item(i-1,0)->text();
                     qInfo() << "    semOpnd -1: " << semOpnd.at(semOpnd.length()-1);
-                    qInfo() << "        Elemento abajo" << ui->table->item(i+1,1)->text() << ", tipo: " << ui->table->item(i+1,0)->text() << "\n";
+                    qInfo() << "        Elemento abajo" << ui->table->item(i+1,1)->text() << ", tipo: " << ui->table->item(i+1,0)->text() << "\n";*/
                     if (ui->table->item(i-1,0)->text() == "101"){
                         semOpnd.append(ui->table->item(i-1,1)->text());
                         semOpndSeparador.append(" ");
                     }
                 } else {
                     if (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  ||
-                        ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
-                        ui->table->item(i-2,1)->text() == "+="){
+                            ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
+                            ui->table->item(i-2,1)->text() == "+="){
                         oprsSeparador.removeLast();
                         oprsSeparador.append(";");
                     }
                     if (ui->table->item(i-1,0)->text() == "101" && (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  ||
-                        ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
-                        ui->table->item(i-2,1)->text() == "+=")){
+                                                                    ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
+                                                                    ui->table->item(i-2,1)->text() == "+=")){
                         semOpnd.append(ui->table->item(i-1,1)->text());
                         semOpndSeparador.append(";");
                     }
@@ -891,9 +896,8 @@ void Widget::semantico(){
     //CICLO PARA VER LO QUE TIENE OPERANDOS
     for (int i = 0; i < operandos.length() ; i++) {
         qInfo() << "Operando en " << i << operandos.at(i) << ", tipo #" << i << tipo.at(i) << "\n";
+        tablaTipos(operandos.at(i), tipo.at(i));
     }
-
-    //CICLO PARA VER LOS TIPOS
 
     //CICLO PARA VER LOS OPERADORES
     for (int i = 0; i < operadores.length(); i++) {
@@ -905,6 +909,193 @@ void Widget::semantico(){
         qInfo() << "            Operando en " << i << semOpnd.at(i) << ", " << semOpndSeparador.at(i) << "\n";
     }
 
+    //ELIMINAR TIPOS REDUNDANTES
+    int redun = 0;
+    for (int i = 0; i < operandos.length(); i++) {
+        for (int j = 0; j < operandos.length(); j++) {
+            if (operandos.at(i) == operandos.at(j) && tipo.at(i) != tipo.at(j) && i != j){
+                operandos.removeAt(i);
+                tipo.removeAt(i);
+                tiposNota("Declaración de variables múltiples en un ámbito");
+            }
+        }
+    }
+
+    QList<QString> auxOperandos;
+    QList<QString> auxOperadores;
+    int opnd = 0; int oprs = 0, contadorSem = 0;;
+    bool ops1 = true; bool ops2 = true;
+    while (contadorSem < semOpnd.length()){
+        if (ops1 == true){
+            auxOperandos.append(semOpnd.at(opnd));
+            opnd++;
+        }
+        if (semOpndSeparador.at(opnd) == ";"){
+            ops1 = false;
+        }
+        if (semOpndSeparador.at(oprs) == ";"){
+            ops2 = false;
+        }
+        if (ops2 == true){
+            auxOperadores.append(operadores.at(oprs));
+            oprs++;
+        }
+        if (ops1 == false){
+            ingresaTipos(auxOperandos, auxOperadores);
+            ops1 = true;
+            ops2 = true;
+        }
+        //qInfo() << "Valor de opnd: " << contadorSem;
+        contadorSem++;
+    }
+}
+
+void Widget::ingresaTipos(QList<QString> a, QList<QString> b){
+    //qInfo() << "Ingresa Tipos";
+    for (int i = i; i < a.length(); i++){
+        qInfo() << "    Operando en " << i << ", " << a.at(i);
+    }
+    for (int i = 0; i < b.length(); i++){
+        qInfo() << "    Operador en " << i << ", " << b.at(i);
+    }
+    qInfo() << "\n";
+}
+
+QString matrizTipos(QString op1, QString op2, QString oper){
+
+    int fila = 0;
+    int col = 0;
+
+    if(op2 == "int"){
+        fila = 0;
+    } else if(op2 == "float"){
+        fila = 1;
+    } else if(op2 == "char"){
+        fila = 2;
+    } else if(op2 == "string"){
+        fila = 3;
+    } else if(op2 == "bool"){
+        fila = 4;
+    }
+
+
+    if(oper == "+"){
+        col = 1;
+    } else if(oper == "-"){
+        col = 2;
+    } else if(oper == "*" || oper == "/"){
+        col = 3;
+    } else if(oper == "||" || oper == "&&"){
+        col = 4;
+    } else if(oper == "%"){
+        col = 5;
+    } else if(oper == "+="){
+        col = 6;
+    } else if(oper == "-=" || oper == "*=" || oper == "/=" || oper == "%="){
+        col = 7;
+    } else if(oper == "<" || oper == ">" || oper == "<=" || oper == ">=" || oper == ""){
+        col = 8;
+    } else if(oper == "==" || oper == "!="){
+        col = 9;
+    }
+
+    QString ent[5][11] = {
+        {"int","int", "int", "float", "bool", "int", "int", "int", "bool", "bool"},
+        {"float","float", "float", "float", "bool", "int", "float", "float", "bool", "bool"},
+        {"char","x", "x", "x", "bool", "x", "x", "x", "x", "x"},
+        {"string","x", "x", "x", "bool", "x", "x", "x", "x", "x"},
+        {"bool","x", "x", "x", "bool", "x", "x", "x", "x", "x"}
+    };
+
+    QString flota[5][11] = {
+        {"int","float", "float", "float", "bool", "int", "float", "float", "bool", "bool"},
+        {"float","float", "float", "float", "bool", "int", "float", "float", "bool", "bool"},
+        {"char","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"string", "x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"bool","x", "x", "x", "x", "x", "x", "x", "x", "x"}
+    };
+
+    QString carac[5][11] = {
+        {"int","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"float","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"char","string", "x", "x", "bool", "x", "x", "x", "x", "bool"},
+        {"string","string", "x", "x", "bool", "x", "x", "x", "x", "x"},
+        {"bool","x", "x", "x", "x", "x", "x", "x", "x", "x"}
+    };
+
+    QString cadena[5][11] = {
+        {"int","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"float","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"char","string", "x", "x", "x", "x", "string", "x", "x", "x"},
+        {"string","string", "x", "x", "x", "x", "string", "x", "x", "bool"},
+        {"bool","x", "x", "x", "x", "x", "x", "x", "x", "x"}
+    };
+
+    QString bolian[5][11] = {
+        {"int","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"float","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"char","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"string","x", "x", "x", "x", "x", "x", "x", "x", "x"},
+        {"bool","x", "x", "x", "bool", "x", "x", "x", "x", "bool"}
+    };
+
+
+    if(op1 == "int"){
+        return ent[fila][col];
+    } else if(op1 == "float"){
+        return flota[fila][col];
+    } else if(op1 == "char"){
+        return carac[fila][col];
+    } else if(op1 == "string"){
+        return cadena[fila][col];
+    }  else if(op1 == "bool"){
+        return bolian[fila][col];
+    }
+
+    return "x";
+}
+
+void Widget::tablaTipos(QString var, QString tipo)
+{
+    int fila;
+    ui->tablaTipos->insertRow(ui->tablaTipos->rowCount());
+    fila = ui->tablaTipos->rowCount()-1;
+    ui->tablaTipos->setItem(fila, 0, new QTableWidgetItem(var));
+    ui->tablaTipos->setItem(fila, 1, new QTableWidgetItem(tipo));
+}
+void Widget::tiposNota(QString nota){
+    int fila;
+    fila = ui->tablaTipos->rowCount()-1;
+    ui->tablaTipos->setItem(fila, 2, new QTableWidgetItem(nota));
+}
+
+QString Widget::erroresSemantico(int x){
+    QString error = "";
+    switch(x){
+    case 1:
+        error = "No coinciden los tipos";
+        break;
+    case 2:
+        error = "Variable no declarada";
+        break;
+    case 3:
+        error = "Identificador reservado, uso indebido";
+        break;
+    case 4:
+        error = "Declaración de variables múltiples en un ámbito";
+        break;
+    case 5:
+        error = "Acceder a una variable fuera de alcance";
+        break;
+    case 6:
+        error = "Parámetro formal y real no coincide";
+        break;
+    case 7:
+        break;
+    case 8:
+        break;
+    }
+    return error;
 }
 
 QList<int> Widget::producciones(int e)

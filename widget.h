@@ -37,10 +37,17 @@ private:
     sint *ventana1;
     void saveFile();
     void agregarTabla(int token, QString lexema, QString gramema);
-    void semantico();
     void limpiar();
     QList<int> producciones(int e);
     QString esperaba(int e);
     QString curFile;
+
+
+    void semantico();
+    QString erroresSemantico(int x);
+    void tablaTipos(QString var, QString tipo);
+    void tiposNota(QString nota);
+    QString matrizTipos(int x, int y);
+    void ingresaTipos(QList<QString> a, QList<QString> b);
 };
 #endif // WIDGET_H
