@@ -1,6 +1,6 @@
     ldi R31,0b00000000		    ;R31 se va a usar para el pseudo
-    ldi r16,0b00011111		    ;R16 carga los pines 0 y 1 como entrada y los demás como salida en el puerto D
-    out ddrd,r16 
+    ldi r16,0b00011100		    ;R16 carga los pines 0 y 1 como entrada y los demás como salida en el puerto D
+    out ddrd,r16		    ;Mandamos las señales al puerto D
     ldi r16,0xff		    ;R16 carga todos los pines como salida
     out ddrb,r16
     
@@ -19,14 +19,15 @@ suelta_inicio:
     rjmp suelta_inicio		    ;Si no se suelta el botón, se cicla
     
 led_inicio:
+    call delay
     ldi r16,0b00000000		    ;Reinicia el registro r16
     out pind,r16		    ;Apaga el puerto D
-    out pin
-    call delay
     ldi r16,0b00010000		    ;Enciende el 5to bit del octeto
-    out portb,r16		    ;Manda la señal encendida del 5to bit
-    ldi r16,0x00		    ;Reinicia el registro r16
+    out pinb,r16		    ;Manda la señal encendida del 5to bit
     call delay
+    call delay
+    ldi r16,0x00		    ;Reinicia el registro r16
+    out portb,r16
     call delay
     
 random:
@@ -39,47 +40,39 @@ random:
     cpi r31,0b00000010
     breq rojo
     
-    cpi r31,0b00000100
+    cpi r31,0b00000011
     breq amarillo
 
 azul:
     ldi r16,0b00000001
     out portb,r16
+    call delay
+    call delay
     call memoria
-    call delay
-    call delay
-    ldi r16,0b00000000
-    out portb,r16
     rjmp start
     
 verde:
     ldi r16,0b00000010
     out portb,r16
+    call delay
+    call delay
     call memoria
-    call delay
-    call delay
-    ldi r16,0b00000000
-    out portb,r16
     rjmp start
     
 rojo:
     ldi r16,0b00000100
     out portb,r16
+    call delay
+    call delay
     call memoria
-    call delay
-    call delay
-    ldi r16,0b00000000
-    out portb,r16
     rjmp start
     
 amarillo:
     ldi r16,0b00001000
     out portb,r16
+    call delay
+    call delay
     call memoria
-    call delay
-    call delay
-    ldi r16,0b00000000
-    out portb,r16
     rjmp start    
     
 memoria:
@@ -101,25 +94,83 @@ memoria:
     ret
     
 guarda_1:   ;Función para guardar el primer puntaje, se usará el registro r29
+    sbic pinb,1
+    ldi r29,0b00000001		    ;Memoria = Azul
     
-    ret
+    sbic pinb,2
+    ldi r29,0b00000010		    ;Memoria = Verde
+    
+    sbic pinb,3
+    ldi r29,0b00000011		    ;Memoria = Rojo
+    
+    sbic pinb,4
+    ldi r29,0b00000100		    ;Memoria = Amarillo
+    
+    rjmp apagar_PuertoB
     
 guarda_2:   ;Función para guardar el segundo puntaje, se usará el registro r28
+    sbic pinb,1
+    ldi r28,0b00000001		    ;Memoria = Azul
     
-    ret
+    sbic pinb,2
+    ldi r28,0b00000010		    ;Memoria = Verde
+    
+    sbic pinb,3
+    ldi r28,0b00000011		    ;Memoria = Rojo
+    
+    sbic pinb,4
+    ldi r28,0b00000100		    ;Memoria = Amarillo
+    
+    rjmp apagar_PuertoB
     
 guarda_3:   ;Función para guardar el tercer puntaje, se usará el registro r27
+    sbic pinb,1
+    ldi r27,0b00000001		    ;Memoria = Azul
     
-    ret
+    sbic pinb,2
+    ldi r27,0b00000010		    ;Memoria = Verde
+    
+    sbic pinb,3
+    ldi r27,0b00000011		    ;Memoria = Rojo
+    
+    sbic pinb,4
+    ldi r27,0b00000100		    ;Memoria = Amarillo
+    
+    rjmp apagar_PuertoB
     
 guarda_4:   ;Función para guardar el cuarto puntaje, se usará el registro r26
+    sbic pinb,1
+    ldi r26,0b00000001		    ;Memoria = Azul
     
-    ret
+    sbic pinb,2
+    ldi r26,0b00000010		    ;Memoria = Verde
+    
+    sbic pinb,3
+    ldi r26,0b00000011		    ;Memoria = Rojo
+    
+    sbic pinb,4
+    ldi r26,0b00000100		    ;Memoria = Amarillo
+    
+    rjmp apagar_PuertoB
     
 guarda_5:   ;Función para guardar el quinto y último puntaje, se usará el registro r25
+    sbic pinb,1
+    ldi r25,0b00000001		    ;Memoria = Azul
     
-    ret
+    sbic pinb,2
+    ldi r25,0b00000010		    ;Memoria = Verde
     
+    sbic pinb,3
+    ldi r25,0b00000011		    ;Memoria = Rojo
+    
+    sbic pinb,4
+    ldi r25,0b00000100		    ;Memoria = Amarillo
+    
+    rjmp apagar_PuertoB
+    
+apagar_PuertoB:
+    ldi r16,0b00000000
+    out portb,r16
     
 start:
     in r16,pind ;Recibe todo el puerto D
