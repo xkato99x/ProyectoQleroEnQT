@@ -18,7 +18,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    QStringList titulos; titulos << "Token" << "                       Lexema                    " << "                    Gramema                    ";
+    QStringList titulos; titulos << "Token" << "        Lexema       " << "                    Gramema                    ";
     ui->table->setColumnCount(3);
     ui->table->setHorizontalHeaderLabels(titulos);
     ui->table->resizeColumnsToContents();
@@ -27,6 +27,14 @@ Widget::Widget(QWidget *parent)
     ui->tablaTipos->setColumnCount(3);
     ui->tablaTipos->setHorizontalHeaderLabels(titulosTablaTipos);
     ui->tablaTipos->resizeColumnsToContents();
+    ui->tablaTipos->rowHeight(10);
+    //ui->tablaTipos->resizeRowsToContents();
+
+    QStringList titulosTablaCuad; titulosTablaCuad << "OPER" << "      OP1      " << "      OP2      " << "      RES      ";
+    ui->tablaCuadruplos->setColumnCount(4);
+    ui->tablaCuadruplos->setHorizontalHeaderLabels(titulosTablaCuad);
+    ui->tablaCuadruplos->resizeColumnsToContents();
+    ui->tablaCuadruplos->rowHeight(5);
 }
 
 Widget::~Widget()
@@ -42,6 +50,20 @@ QString errores = ""; QString cadenita = "";
 QString sintac = "";
 QList<int> tokens; int tokenconc = 0;
 QList<QString> lexemas; int lexemaconc = 0;
+
+
+// ELDA - SEMÁNTICO
+bool buliano = false;
+QList<QString> operadores;
+QList<QString> operandos;
+QList<QString> oprsSeparador;
+QList<QString> tipo;
+QList<int> saltos;
+QList<QString> semOpnd = {"quitar"};
+QList<QString> semOpndSeparador;
+int contador = 0;
+int temporalTipos = 1;
+int temporalCuadruplos = 1;
 
 int Matriz(int fila, int col){
     //      L	,	l	,	d	,	_	,	.	,	'	,	"	,  todo	,	E	,	e	,	+	,	-	,	*	,	/	,	%	,	=	,	<	,	>	,	!	,	&	,	|	,	[	,	]	,	(	,	)	,	,	,	;	,	{   ,   }   ,  esp  ,   dif	,	\b	,	\n	,	\t	,	\0
@@ -322,7 +344,8 @@ QString Error(int e){ //Esta es la Tabla de Errores
         error = "Error 505: Al escribir una comilla simple o doble no se puede terminar la oración. Tiene que venir seguido de cualquier cosa.";
         break;
     case 506 :
-        error = "Error 506: Se encontraron delimitadores";
+        //error = "Error 506: Se encontraron delimitadores";
+        error = "";
         break;
     case 507 :
         error = "Error 507: Después de escribir la comilla y cualquier cosa, no se puede terminar la oración. Tiene que venir seguido de otra comilla.";
@@ -495,13 +518,13 @@ void Widget::on_btnAnalizar_clicked()
             estado = 0;
             cad = "";
         } else if (estado >= 499 && estado <= 515){
-            if (car[i] == 9){
+            if (car[i] == 9 && estado != 506){
                 errores = ui->txtErrores->toPlainText() + Error(estado) + "( tabulador )" + "\n";
-            } else if (car[i] == 10){
+            } else if (car[i] == 10 && estado != 506){
                 errores = ui->txtErrores->toPlainText() + Error(estado) + "( enter )" + "\n";
-            } else if (car[i] == 32){
+            } else if (car[i] == 32 && estado != 506){
                 errores = ui->txtErrores->toPlainText() + Error(estado) + "( espacio )" + "\n";
-            } else {
+            } else if (estado != 506){
                 errores = ui->txtErrores->toPlainText() + Error(estado) + "(" + cad + ")" + "\n";
             }
             ui->txtErrores->setPlainText("");
@@ -516,9 +539,9 @@ void Widget::on_btnAnalizar_clicked()
     int aum = 0;
     for(int i = 0; i < tokenz.size(); i++){
         int aitem = tokenz.at(i);
-        qInfo() << "Item [" << i << "]: " << aitem;
+        //qInfo() << "Item [" << i << "]: " << aitem;
         QString lexema = lexemaz.at(i);
-        qInfo() << "Lexema: " << lexema << "\n";
+        //qInfo() << "Lexema: " << lexema << "\n";
         if (aitem == 100){ //palabra reservada
             if (lexema == "class"){
                 NextToken.insert(aum, 1003);
@@ -796,7 +819,7 @@ void Widget::on_btnAnalizar_clicked()
                         pila.removeAt(i);
                     }
                     pila.removeAt(0);
-                    QString espera = esperaba(2);
+                    //QString espera = esperaba(2);
                     QMessageBox error; error.setText("Error! Se esperaban first/follows"); error.exec();
                 }
             }
@@ -830,20 +853,14 @@ void Widget::on_btnAnalizar_clicked()
     qInfo() << "\nItem: " << patas;
 
     semantico();
+    limpiarPilas();
+    cuadruplos();
 }
 
 void Widget::semantico(){
     qInfo() << "\n\nEMPIEZA EL SEMÁNTICO\n";
-    bool buliano = false;
-    QList<QString> operadores;
-    QList<QString> operandos;
-    QList<QString> oprsSeparador;
-    QList<QString> tipo;
-    QList<int> saltos;
-    QList<QString> semOpnd = {"quitar"};
-    QList<QString> semOpndSeparador;
-    int contador = 0;
-    for (int i = 0; i < ui->table->rowCount()-1; i++) {
+    //semOpnd.append("quitar");
+    for (int i = 0; i < ui->table->rowCount()-1; i++){
         if (ui->table->item(i,1)->text() == "def"){
             buliano = true;
         } else if (ui->table->item(i,1)->text() == ";"){
@@ -875,9 +892,8 @@ void Widget::semantico(){
                         semOpndSeparador.append(" ");
                     }
                 } else {
-                    if (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  ||
-                            ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
-                            ui->table->item(i-2,1)->text() == "+="){
+                    if (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  || ui->table->item(i-2,1)->text() == "*" ||
+                            ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" || ui->table->item(i-2,1)->text() == "+="){
                         oprsSeparador.removeLast();
                         oprsSeparador.append(";");
                     }
@@ -914,12 +930,34 @@ void Widget::semantico(){
     for (int i = 0; i < operandos.length(); i++) {
         for (int j = 0; j < operandos.length(); j++) {
             if (operandos.at(i) == operandos.at(j) && tipo.at(i) != tipo.at(j) && i != j){
-                operandos.removeAt(i);
-                tipo.removeAt(i);
+                operandos.removeAt(j);
+                tipo.removeAt(j);
                 tiposNota("Declaración de variables múltiples en un ámbito");
             }
         }
     }
+
+    //DECLARACIÓN DE VARIABLES NO DEFINIDAS
+    bool container = false;
+    for (int i = 0; i < semOpnd.length(); i++) {
+        container = false;
+        for (int j = 0; j < operandos.length(); j++) {
+            if (semOpnd.at(i) == operandos.at(j)){
+                container = true;
+            } else if (j == operandos.length()-1 && container == false){
+                //qInfo() << "                            Meter variable no definida";
+                operandos.append(semOpnd.at(i));
+                tipo.append("int");
+                tablaTipos(operandos.at(operandos.length()-1), tipo.at(tipo.length()-1));
+                tiposNota("Error; Variable no definida.");
+            }
+        }
+    }
+
+    /*for (int i = 0; i < operandos.length() ; i++) {
+        qInfo() << "Operando en " << i << operandos.at(i) << ", tipo #" << i << tipo.at(i) << "\n";
+        tablaTipos(operandos.at(i), tipo.at(i));
+    }*/
 
     QList<QString> auxOperandos;
     QList<QString> auxOperadores;
@@ -927,41 +965,227 @@ void Widget::semantico(){
     bool ops1 = true; bool ops2 = true;
     while (contadorSem < semOpnd.length()){
         if (ops1 == true){
+            qInfo() << "Ingresando al auxiliar: " << semOpnd.at(opnd) << "     Valor de oprs: " << opnd;
             auxOperandos.append(semOpnd.at(opnd));
             opnd++;
         }
+        if (ops2 == true){
+            qInfo() << "Ingresando al auxiliar: " << operadores.at(oprs) << "     Valor de oprs: " << oprs;
+            auxOperadores.append(operadores.at(oprs));
+            oprs++;
+        }
         if (semOpndSeparador.at(opnd) == ";"){
+            qInfo() << "Ingresando al auxiliar: " << semOpnd.at(opnd) << "     Valor de oprs: " << opnd;
+            auxOperandos.append(semOpnd.at(opnd));
+            opnd++;
             ops1 = false;
         }
         if (semOpndSeparador.at(oprs) == ";"){
             ops2 = false;
         }
-        if (ops2 == true){
-            auxOperadores.append(operadores.at(oprs));
-            oprs++;
-        }
         if (ops1 == false){
-            ingresaTipos(auxOperandos, auxOperadores);
             ops1 = true;
             ops2 = true;
+            //qInfo() << "        Antes del método";
+            ingresaTipos(auxOperandos, auxOperadores);
+            while (auxOperadores.length() != 0) {
+                auxOperadores.removeAt(auxOperadores.length()-1);
+            }
+            while (auxOperandos.length() != 0) {
+                auxOperandos.removeAt(auxOperandos.length()-1);
+            }
+            //qInfo() << "        Después del método";
         }
-        //qInfo() << "Valor de opnd: " << contadorSem;
+        qInfo() << "Valor de opnd: " << contadorSem;
+        if (semOpnd.length() == opnd){
+            break;
+        }
         contadorSem++;
     }
 }
 
 void Widget::ingresaTipos(QList<QString> a, QList<QString> b){
     //qInfo() << "Ingresa Tipos";
-    for (int i = i; i < a.length(); i++){
+    QList<QString> conc;
+    for (int i = 0; i < a.length(); i++){
         qInfo() << "    Operando en " << i << ", " << a.at(i);
     }
+
     for (int i = 0; i < b.length(); i++){
         qInfo() << "    Operador en " << i << ", " << b.at(i);
     }
-    qInfo() << "\n";
+
+    for (int i = 0; i < a.length(); i++) {
+        conc.append(a.at(i));
+        if (i < b.length()){
+            conc.append(b.at(i));
+        }
+    }
+
+    QString res = operacionTipos(conc);
+    qInfo() << "Valor de res: " << res;
+
+    //IMPRIMIR EN LA TABLA
 }
 
-QString matrizTipos(QString op1, QString op2, QString oper){
+QString Widget::operacionTipos(QList<QString> concatenacion){
+    QString R;
+    QString op1, op2, op, tipazo;
+    QList<QString> conc;
+    QList<QString> concTipos;
+    bool v = false;
+    int longitudinal = concatenacion.length();
+    QString tipoFondoPila = "";
+
+    //qInfo() << "                Tamaño concatenación: " << concatenacion.length() << ", Tamaño concTipos: " << concTipos.length();
+    //Ciclo para igualar las pilas concatenacion y concTipos
+    for (int i = 0; i < concatenacion.length(); i++ ){
+        for (int j = 0; j < operandos.length(); j++) {
+            if (concatenacion.at(i) == operandos.at(j)){
+                concTipos.append(tipo.at(j));
+            } else if(concatenacion.at(i) == operadores.at(j)){
+                concTipos.append("");
+            }
+        }
+    }
+
+    //CICLO PARA VER LO QUE TIENE CONCATENACION
+    /*for (int i = 0; i < concatenacion.length() ; i++) {
+        qInfo() << "Operando en " << i << concatenacion.at(i) << ", tipo #" << i << concTipos.at(i) << "\n";
+    }*/
+
+    for (int i = 0; i < concatenacion.length(); i++){ //Ciclo para los paréntesis
+        if (concatenacion.at(i) == "("){
+            v = true;
+        } else if (concatenacion.at(i) == ")"){
+            v = false;
+        }
+
+        if (v == true){
+            conc.append(concatenacion.at(i));
+        }
+    }
+    if (conc.length() > 2){
+        R = operacionTipos(conc);
+    }
+
+    for (int i = 0; i < concatenacion.length(); i++){ //ciclo para potencia y raiz
+        if (concatenacion.at(i) == "^"){
+            op2 = concTipos.at(i+1); //El que está a la derecha
+            concatenacion.removeAt(i+1);
+            concTipos.removeAt(i+1);
+
+            op = concatenacion.at(i);
+            concatenacion.removeAt(i); //Operador
+            concTipos.removeAt(i);
+
+            op1 = concTipos.at(i-1); //El que está a la izquierda
+            concatenacion.removeAt(i-1);
+            concTipos.removeAt(i-1);
+
+            tipazo = matrizTipos(op1, op2, op);
+            if (tipazo == "x"){
+                tipazo = op1;
+            }
+
+            //guardamso el nuevo valor, Rn, en pila de operandos
+            QString erre = "R";
+            erre += QString::number(temporalTipos);
+            temporalTipos++;
+
+            concatenacion.append((erre));
+            concTipos.append(tipazo);
+            longitudinal = concatenacion.length();
+            //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+        }
+    }
+
+    for (int i = 0; i < longitudinal; i++){ //ciclo para potencia y raiz
+        //qInfo() << "    Valor de I: " << i << ", Valor de Longitudinal: " << longitudinal << ", Longitud de la lista: " << concatenacion.length();
+        if (concatenacion.at(i) == "*" || concatenacion.at(i) == "/"){
+            op2 = concTipos.at(i+1); //El que está a la derecha
+            concatenacion.removeAt(i+1);
+            concTipos.removeAt(i+1);
+
+            op = concatenacion.at(i);
+            concatenacion.removeAt(i); //Operador
+            concTipos.removeAt(i);
+
+            op1 = concTipos.at(i-1); //El que está a la izquierda
+            concatenacion.removeAt(i-1);
+            concTipos.removeAt(i-1);
+
+            tipazo = matrizTipos(op1, op2, op);
+            if (tipazo == "x"){
+                tipazo = op1;
+            }
+
+            //guardamso el nuevo valor, Rn, en pila de operandos
+            QString erre = "R";
+            erre += QString::number(temporalTipos);
+            temporalTipos++;
+
+            concatenacion.append((erre));
+            concTipos.append(tipazo);
+            longitudinal = concatenacion.length();
+            //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+        }
+    }
+
+    for (int i = 0; i < concatenacion.length(); i++){ //ciclo para potencia y raiz
+        //qInfo() << "    Valor de I: " << i << ", Valor de Longitudinal: " << longitudinal << ", Longitud de la lista: " << concatenacion.length();
+        if (concatenacion.at(i) == "+" || concatenacion.at(i) == "-"){
+            op2 = concTipos.at(i+1); //El que está a la derecha
+            concatenacion.removeAt(i+1);
+            concTipos.removeAt(i+1);
+
+            op = concatenacion.at(i);
+            concatenacion.removeAt(i); //Operador
+            concTipos.removeAt(i);
+
+            op1 = concTipos.at(i-1); //El que está a la izquierda
+            concatenacion.removeAt(i-1);
+            concTipos.removeAt(i-1);
+
+            tipazo = matrizTipos(op1, op2, op);
+            if (tipazo == "x"){
+                tipazo = op1;
+            }
+
+            //guardamso el nuevo valor, Rn, en pila de operandos
+            QString erre = "R";
+            erre += QString::number(temporalTipos);
+            temporalTipos++;
+
+            concatenacion.append((erre));
+            concTipos.append(tipazo);
+            longitudinal = concatenacion.length();
+            //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+        }
+    }
+
+    if (concatenacion.length() == 3){
+        for (int i = 0; i < operandos.length(); i++){
+            //qInfo() << "    Operando en " << i << ": " << operandos.at(i);
+            if (operandos.at(i) == concatenacion.at(0)){
+                tipoFondoPila = tipo.at(i);
+                break;
+            }
+        }
+        if (tipoFondoPila == concTipos.at(concTipos.length()-1)){
+            qInfo() << "TODO BIEN :DDDDDD";
+        } else {
+            qInfo() << "Los tipos no coinciden";
+        }
+        R = tipoFondoPila;
+    } else {
+        qInfo() << "Algo se hizo mal :(";
+    }
+
+    return R;
+}
+
+QString Widget::matrizTipos(QString op1, QString op2, QString oper){
 
     int fila = 0;
     int col = 0;
@@ -980,23 +1204,23 @@ QString matrizTipos(QString op1, QString op2, QString oper){
 
 
     if(oper == "+"){
-        col = 1;
+        col = 0;
     } else if(oper == "-"){
+        col = 1;
+    } else if(oper == "" || oper == "/"){
         col = 2;
-    } else if(oper == "*" || oper == "/"){
+    } else if(oper == "" || oper == "&&"){
         col = 3;
-    } else if(oper == "||" || oper == "&&"){
-        col = 4;
     } else if(oper == "%"){
-        col = 5;
+        col = 4;
     } else if(oper == "+="){
+        col = 5;
+    } else if(oper == "-=" || oper == "=" || oper == "/=" || oper == "%="){
         col = 6;
-    } else if(oper == "-=" || oper == "*=" || oper == "/=" || oper == "%="){
-        col = 7;
     } else if(oper == "<" || oper == ">" || oper == "<=" || oper == ">=" || oper == ""){
-        col = 8;
+        col = 7;
     } else if(oper == "==" || oper == "!="){
-        col = 9;
+        col = 8;
     }
 
     QString ent[5][11] = {
@@ -1063,6 +1287,7 @@ void Widget::tablaTipos(QString var, QString tipo)
     ui->tablaTipos->setItem(fila, 0, new QTableWidgetItem(var));
     ui->tablaTipos->setItem(fila, 1, new QTableWidgetItem(tipo));
 }
+
 void Widget::tiposNota(QString nota){
     int fila;
     fila = ui->tablaTipos->rowCount()-1;
@@ -1096,6 +1321,291 @@ QString Widget::erroresSemantico(int x){
         break;
     }
     return error;
+}
+
+void Widget::limpiarPilas(){
+    operadores.clear();
+    operandos.clear();
+    oprsSeparador.clear();
+    tipo.clear();
+    saltos.clear();
+    semOpnd.clear();
+    semOpndSeparador.clear();
+    semOpnd.append("quitar");
+}
+
+void Widget::cuadruplos(){
+    qInfo() << "\n\nEMPIEZAN LOS CUADRUPLOS";
+    for (int i = 0; i < ui->table->rowCount()-1; i++){
+        //qInfo() << "Valorando: " << ui->table->item(i,1)->text();
+        if (ui->table->item(i,1)->text() == "if" || ui->table->item(i,1)->text() == "for" || ui->table->item(i,1)->text() == "while" ||
+                ui->table->item(i,1)->text() == "do"){
+            buliano = true;
+        }
+
+        if (buliano == true) {  //Aquí guardamos las palabras reservadas desde un ciclo hasta que se acabe
+            if (ui->table->item(i,0)->text() != "119" && ui->table->item(i,0)->text() != "120" && ui->table->item(i,0)->text() != "126" &&
+                    ui->table->item(i,0)->text() != "123"){ //METER OPERANDOS
+                //qInfo() << "    OPS.- Metiendo " << ui->table->item(i,1)->text();
+                semOpnd.append(ui->table->item(i,1)->text());
+                contador++;
+            }
+
+        } else {    //Aquí guardamos las operaciones que se hagan entremedias
+
+            if (ui->table->item(i,1)->text() == "+"  || ui->table->item(i,1)->text() == "-"  || ui->table->item(i,1)->text() == "*"  ||
+                    ui->table->item(i,1)->text() == "/" || ui->table->item(i,1)->text() == "=" || ui->table->item(i,1)->text() == "+=" ||
+                    ui->table->item(i,1)->text() == ";"){
+                if (ui->table->item(i,1)->text() != ";"){
+
+                    if (ui->table->item(i-1,0)->text() == "101"){
+                        semOpnd.append(ui->table->item(i-1,1)->text());
+                        //qInfo() << "    2) Metiendo " << ui->table->item(i-1,1)->text();
+                        semOpndSeparador.append(" ");
+                    }
+
+                    semOpnd.append(ui->table->item(i,1)->text());
+                    //qInfo() << "    1) Metiendo " << ui->table->item(i,1)->text();
+                    oprsSeparador.append(" ");
+                    //qInfo() << "Elemento arriba: " << ui->table->item(i-1,1)->text() << ", tipo: " << ui->table->item(i-1,0)->text();
+                    //qInfo() << "    semOpnd -1: " << semOpnd.at(semOpnd.length()-1);
+                    //qInfo() << "        Elemento abajo" << ui->table->item(i+1,1)->text() << ", tipo: " << ui->table->item(i+1,0)->text() << "\n";
+                } else {
+                    if (ui->table->item(i-1,0)->text() == "101" && (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  ||
+                                                                    ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
+                                                                    ui->table->item(i-2,1)->text() == "+=")){
+                        semOpnd.append(ui->table->item(i-1,1)->text());
+                        //qInfo() << "    3) Metiendo " << ui->table->item(i,1)->text();
+                        semOpndSeparador.append(";");
+                    }
+                    if (ui->table->item(i-2,1)->text() == "+"  || ui->table->item(i-2,1)->text() == "-"  ||
+                            ui->table->item(i-2,1)->text() == "*"  || ui->table->item(i-2,1)->text() == "/" || ui->table->item(i-2,1)->text() == "=" ||
+                            ui->table->item(i-2,1)->text() == "+="){
+                        oprsSeparador.removeLast();
+                        semOpnd.append(";");
+                    }
+                }
+
+            }
+
+        }
+        if (ui->table->item(i,1)->text() == "endif" || ui->table->item(i,1)->text() == "endfor" || ui->table->item(i,1)->text() == "endwhile" ||
+                ui->table->item(i,1)->text() == "enddo"){
+            buliano = false;
+        }
+    }
+    semOpnd.removeFirst();
+
+    //CICLO PARA VER LOS OPERADORES
+    for (int i = 0; i < operadores.length(); i++) {
+        qInfo() << "    Operador en " << i << operadores.at(i) << ", " << oprsSeparador.at(i) << "\n";
+    }
+
+    //CICLO PARA VER LOS OPERANDOS PARA LAS OPERACIONES
+    for (int i = 0; i < semOpnd.length(); i++) {
+        qInfo() << "        Operando en " << i << semOpnd.at(i) <</* ", " << tipo.at(i) << */"\n";
+    }
+
+    //EMPEZAMOS A TRABAJAR CON LA TABLA DE CUADRUPLOS
+    QList<QString> auxiliar;
+    int par = 0, parido = 0, cont = 0, apunt = 0;
+    QString aux = "";
+    for (int i = 0; i < semOpnd.length(); i++){
+
+        if (semOpnd.at(i) != "if" && semOpnd.at(i) != "for" && semOpnd.at(i) != "while" && semOpnd.at(i) != "do"){
+            cont++;
+            qInfo() << "    Contador = " << cont;
+        } else if (semOpnd.at(i) == "if" || semOpnd.at(i) == "for" || semOpnd.at(i) == "while" || semOpnd.at(i) == "do"){
+            for (int j = 0; j < cont; j++) {
+                qInfo() << "    Metiendo en la pila auxiliar: " << semOpnd.at(j);
+                auxiliar.append(semOpnd.at(j));
+            }
+            qInfo() << "    Llama a método jerarquiaCuadruplos";
+            aux = jerarquiaCuadruplos(auxiliar);
+            auxiliar.clear();
+            cont = 0;
+        }
+
+        //MÉTODO PA DESPUÉS
+        /*bool v = true;
+        QString oper = "", op1 = "", op2 = "", res = "";
+        QList<QString> conc;
+        for (int j = 0; j < semOpnd.length(); j++){ //Ciclo para los paréntesis
+            if (semOpnd.at(j) == "("){
+                v = true;
+            } else if (semOpnd.at(j) == ")"){
+                v = false;
+            }
+
+            if (v == true){
+                //conc.append(concatenacion.at(i));
+            }
+        }
+        if (conc.length() > 2){
+
+        }
+
+        for (int j = 0; j < semOpnd.length(); j++){ //ciclo para potencia y raiz
+            if (semOpnd.at(j) == "^"){
+                op2 = semOpnd.at(j+1); //El que está a la derecha
+                semOpnd.removeAt(j+1);
+
+                oper = semOpnd.at(j);
+                semOpnd.removeAt(j); //Operador
+
+                op1 = semOpnd.at(j-1); //El que está a la izquierda
+                semOpnd.removeAt(j-1);
+
+                //Operación para sacar RES ¿?
+                QString erre = "R";
+                erre += QString::number(temporalCuadruplos);
+                temporalCuadruplos++;
+
+                semOpnd.append((erre));
+
+                tablaCuadruplos(oper, op1, op2, erre);
+                //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+            }
+        }*/
+    }
+}
+
+QString Widget::jerarquiaCuadruplos(QList<QString> a){
+    qInfo() << "    Entró al método jerarquia cuadr";
+    QList<QString> recursivo;
+    QString iterado;
+    QString R = "";
+    for (int i = 0; i < a.length(); i++) {
+        qInfo() << "        Metiendo en pila recursivo " << a.at(i);
+        recursivo.append(a.at(i));
+        if (a.at(i) == ";"){
+            //a.mid(i);
+            for (int j = 0; j < i; j++) {
+                a.removeAt(j);
+            }
+            recursivo.removeLast();
+            iterado = jerarquiaCuadruplos(recursivo);
+            qInfo() << "                Método recursivo";
+            i = a.length()+1;
+        }
+    }
+    qInfo() << "                    Va a comparar por la jerarquia ahora sí";
+    bool v = true;
+    QString oper = "", op1 = "", op2 = "", res = "";
+    QList<QString> conc;
+    for (int j = 0; j < recursivo.length(); j++){ //Ciclo para los paréntesis
+        if (recursivo.at(j) == "("){
+            v = true;
+        } else if (recursivo.at(j) == ")"){
+            v = false;
+        }
+
+        if (v == true){
+            //conc.append(concatenacion.at(i));
+        }
+    }
+    if (conc.length() > 2){
+
+    }
+
+    for (int j = 0; j < recursivo.length(); j++){ //ciclo para potencia y raiz
+        if (recursivo.at(j) == "^"){
+            op2 = recursivo.at(j+1); //El que está a la derecha
+            recursivo.removeAt(j+1);
+
+            oper = recursivo.at(j);
+            recursivo.removeAt(j); //Operador
+
+            op1 = recursivo.at(j-1); //El que está a la izquierda
+            recursivo.removeAt(j-1);
+
+            //Operación para sacar RES ¿?
+            QString erre = "R";
+            erre += QString::number(temporalCuadruplos);
+            temporalCuadruplos++;
+
+            recursivo.append((erre));
+
+            tablaCuadruplos(oper, op1, op2, erre);
+            //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+        }
+    }
+
+    for (int j = 0; j < recursivo.length(); j++){ //ciclo para potencia y raiz
+        if (recursivo.at(j) == "*" || recursivo.at(j) == "/"){
+            op2 = recursivo.at(j+1); //El que está a la derecha
+            recursivo.removeAt(j+1);
+
+            oper = recursivo.at(j);
+            recursivo.removeAt(j); //Operador
+
+            op1 = recursivo.at(j-1); //El que está a la izquierda
+            recursivo.removeAt(j-1);
+
+            //Operación para sacar RES ¿?
+            QString erre = "R";
+            erre += QString::number(temporalCuadruplos);
+            temporalCuadruplos++;
+
+            recursivo.append((erre));
+
+            tablaCuadruplos(oper, op1, op2, erre);
+            //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+        }
+    }
+
+    for (int j = 0; j < recursivo.length(); j++){ //ciclo para potencia y raiz
+        if (recursivo.at(j) == "+" || recursivo.at(j) == "-"){
+            op2 = recursivo.at(j+1); //El que está a la derecha
+            recursivo.removeAt(j+1);
+
+            oper = recursivo.at(j);
+            recursivo.removeAt(j); //Operador
+
+            op1 = recursivo.at(j-1); //El que está a la izquierda
+            recursivo.removeAt(j-1);
+
+            //Operación para sacar RES ¿?
+            QString erre = "R";
+            erre += QString::number(temporalCuadruplos);
+            temporalCuadruplos++;
+
+            recursivo.append((erre));
+
+            tablaCuadruplos(oper, op1, op2, erre);
+            //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+        }
+    }
+
+    for (int j = 0; j < recursivo.length(); j++){ //ciclo para potencia y raiz
+        if (recursivo.at(j) == "="){
+            op2 = recursivo.at(j+1); //El que está a la derecha
+            recursivo.removeAt(j+1);
+
+            oper = recursivo.at(j);
+            recursivo.removeAt(j); //Operador
+
+            op1 = recursivo.at(j-1); //El que está a la izquierda
+            recursivo.removeAt(j-1);
+
+
+            tablaCuadruplos(oper, op1, "", op2);
+            //qInfo() << "    Longitud de la lista: " << concatenacion.length();
+        }
+    }
+
+    return R;
+}
+
+void Widget::tablaCuadruplos(QString oper, QString op1, QString op2, QString res){
+    int fila;
+    ui->tablaCuadruplos->insertRow(ui->tablaCuadruplos->rowCount());
+    fila = ui->tablaCuadruplos->rowCount()-1;
+    ui->tablaCuadruplos->setItem(fila, 0, new QTableWidgetItem(oper));
+    ui->tablaCuadruplos->setItem(fila, 1, new QTableWidgetItem(op1));
+    ui->tablaCuadruplos->setItem(fila, 2, new QTableWidgetItem(op2));
+    ui->tablaCuadruplos->setItem(fila, 3, new QTableWidgetItem(res));
+
 }
 
 QList<int> Widget::producciones(int e)
@@ -1593,10 +2103,6 @@ QList<int> Widget::producciones(int e)
     return prods;
 }
 
-QString Widget::esperaba(int e)
-{
-
-}
 
 void Widget::on_btnAbrir_clicked()
 {
@@ -1664,6 +2170,7 @@ void Widget::limpiar()
     for (int i = 0; i <= filas; i++){
         ui->table->removeRow(0);
     }
+
     errores = "";
     ui->txtErrores->setPlainText("");
 
@@ -1673,6 +2180,15 @@ void Widget::limpiar()
     for (int i = 0; i < tokens.size(); i++){
         tokens.removeAt(i);
     }
+
+
+    //SEMÁNTICO
+    filas = ui->tablaTipos->rowCount();
+    for (int i = 0; i <= filas; i++){
+        ui->tablaTipos->removeRow(0);
+    }
+
+    limpiarPilas();
 }
 
 QString Widget::getCurFile() const

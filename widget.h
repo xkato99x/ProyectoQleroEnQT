@@ -47,7 +47,13 @@ private:
     QString erroresSemantico(int x);
     void tablaTipos(QString var, QString tipo);
     void tiposNota(QString nota);
-    QString matrizTipos(int x, int y);
+    QString operacionTipos(QList<QString> concatenacion);
+    QString matrizTipos(QString op1, QString op2, QString oper);
     void ingresaTipos(QList<QString> a, QList<QString> b);
+    void limpiarPilas();
+    void cuadruplos();
+    void tablaCuadruplos(QString oper, QString op1, QString op2, QString res);
+    void tablaCuad_MeterSalto(int pos, QString res);
+    QString jerarquiaCuadruplos(QList<QString> a);
 };
 #endif // WIDGET_H
