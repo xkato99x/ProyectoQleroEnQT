@@ -30,11 +30,29 @@ Widget::Widget(QWidget *parent)
     ui->tablaTipos->rowHeight(10);
     //ui->tablaTipos->resizeRowsToContents();
 
-    QStringList titulosTablaCuad; titulosTablaCuad << "OPER" << "      OP1      " << "      OP2      " << "      RES      ";
+    QStringList titulosTablaCuad; titulosTablaCuad << " OPER " << "      OP1      " << "      OP2      " << "      RES      ";
     ui->tablaCuadruplos->setColumnCount(4);
     ui->tablaCuadruplos->setHorizontalHeaderLabels(titulosTablaCuad);
     ui->tablaCuadruplos->resizeColumnsToContents();
     ui->tablaCuadruplos->rowHeight(5);
+
+    QStringList titulosTablaSaltos; titulosTablaSaltos << "                                     SALTOS                                ";
+    ui->tablaSaltos->setColumnCount(1);
+    ui->tablaSaltos->setHorizontalHeaderLabels(titulosTablaSaltos);
+    ui->tablaSaltos->resizeColumnsToContents();
+    ui->tablaSaltos->rowHeight(5);
+
+    QStringList titulosTablaOperandos; titulosTablaOperandos << "                    OPERANDOS                        ";
+    ui->tablaOperandos->setColumnCount(1);
+    ui->tablaOperandos->setHorizontalHeaderLabels(titulosTablaOperandos);
+    ui->tablaOperandos->resizeColumnsToContents();
+    ui->tablaOperandos->rowHeight(5);
+
+    QStringList titulosTablaOperadores; titulosTablaOperadores << "                   OPERADORES                         ";
+    ui->tablaOperadores->setColumnCount(1);
+    ui->tablaOperadores->setHorizontalHeaderLabels(titulosTablaOperadores);
+    ui->tablaOperadores->resizeColumnsToContents();
+    ui->tablaOperadores->rowHeight(5);
 }
 
 Widget::~Widget()
@@ -64,6 +82,7 @@ QList<QString> semOpndSeparador;
 int contador = 0;
 int temporalTipos = 1;
 int temporalCuadruplos = 1;
+int ultimoSalto = 0;
 
 int Matriz(int fila, int col){
     //      L	,	l	,	d	,	_	,	.	,	'	,	"	,  todo	,	E	,	e	,	+	,	-	,	*	,	/	,	%	,	=	,	<	,	>	,	!	,	&	,	|	,	[	,	]	,	(	,	)	,	,	,	;	,	{   ,   }   ,  esp  ,   dif	,	\b	,	\n	,	\t	,	\0
@@ -1495,20 +1514,21 @@ void Widget::cuadruplos(){
         }
         if(semOpnd.at(i) == "endfor" || semOpnd.at(i) == "endwhile" || semOpnd.at(i) == "enddo" || semOpnd.at(i) == "else" || semOpnd.at(i) == "elseif"){
             //qInfo() << "        Debió entrar a un END ";
-            if (semOpnd.at(i) == "endwhile" || semOpnd.at(i) == "enddo" || semOpnd.at(i) == "else" ||
-                    semOpnd.at(i) == "elseif"){
+            if (semOpnd.at(i) == "endwhile" || semOpnd.at(i) == "else" || semOpnd.at(i) == "elseif"){
+                //RELLENAR SALTOS DE UN WHILE Y UN IF
                 tablaCuadruplos("SI","","","");
                 //qInfo() << "                Metemos en " << saltos.at(saltos.length()-1) << " esto " << ui->tablaCuadruplos->rowCount()+1;
                 tablaCuad_MeterSalto(saltos.at(saltos.length()-1), ui->tablaCuadruplos->rowCount()+1);
                 tablaSaltos(saltos.at(saltos.length()-1));
                 saltos.append(ui->tablaCuadruplos->rowCount());
                 //qInfo() << "                Guarda " << ui->tablaCuadruplos->rowCount() << " en la pila de saltos";
-            } else if (semOpnd.at(i) == "endfor"){
+            } else if (semOpnd.at(i) == "endfor"){  //RELLENAR SALTOS DE UN FOR
                 tablaCuadruplos("SI","","","");
-                //qInfo() << "                Metemos en " << saltos.at(saltos.length()-1) << " esto " << ui->tablaCuadruplos->rowCount()+1;
+                qInfo() << "                Metemos en " << saltos.at(saltos.length()-1) << " esto " << ui->tablaCuadruplos->rowCount()+1;
                 tablaCuad_MeterSalto(saltos.at(saltos.length()-1), ui->tablaCuadruplos->rowCount()+1);
                 tablaSaltos(saltos.at(saltos.length()-1));
                 saltos.append(ui->tablaCuadruplos->rowCount());
+            } else if (semOpnd.at(i) == "enddo"){
 
             }
         }
@@ -1561,6 +1581,8 @@ void Widget::cuadruplos(){
     for (int i = 0; i < saltos.length(); i++) {
         qInfo() << "Salto en " << saltos.at(i);
     }
+    //ui->tablaSaltos
+    //tablaSaltos(saltos.at(saltos.length()-2));
 }
 
 void Widget::tablaSaltos(int x){
