@@ -53,7 +53,8 @@ private:
     void limpiarPilas();
     void cuadruplos();
     void tablaCuadruplos(QString oper, QString op1, QString op2, QString res);
-    void tablaCuad_MeterSalto(int pos, QString res);
+    void tablaCuad_MeterSalto(int pos, int res);
     QString jerarquiaCuadruplos(QList<QString> a);
+    void tablaSaltos(int x);
 };
 #endif // WIDGET_H
