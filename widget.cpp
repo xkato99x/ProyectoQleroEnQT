@@ -1063,10 +1063,10 @@ void Widget::ingresaTipos(QList<QString> a, QList<QString> b){
 
     //IMPRIMIR EN LA TABLA
 }
-
+QString op1, op2, op, tipazo;
 QString Widget::operacionTipos(QList<QString> concatenacion){
     QString R;
-    QString op1, op2, op, tipazo;
+    //QString op1, op2, op, tipazo;
     QList<QString> conc;
     QList<QString> concTipos;
     bool v = false;
@@ -1122,11 +1122,12 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
 
             tipazo = matrizTipos(op1, op2, op);
             if (tipazo == "x"){
+                ui->txtErrores->appendPlainText("Error entre tipos: " + op1 + " " + op + " " + op2 + " = " + tipazo);
+                qInfo() << "Error entre tipos: " + op1 + " " + op + " " + op2 + " = " + tipazo;
                 tipazo = op1;
-
             }
 
-            //guardamso el nuevo valor, Rn, en pila de operandos
+            //guardamos el nuevo valor, Rn, en pila de operandos
             QString erre = "R";
             erre += QString::number(temporalTipos);
             temporalTipos++;
@@ -1150,12 +1151,20 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
             concTipos.removeAt(i);
 
             op1 = concTipos.at(i-1); //El que está a la izquierda
+            qInfo() <<" ++++++++Op1: " << op1<< "concTipos(i-1): " << concTipos.at(i);
             concatenacion.removeAt(i-1);
             concTipos.removeAt(i-1);
-
+            /*qInfo() << "+++++El valor de op1: " << op1;
+            qInfo() << "+++++El valor de op2: " << concTipos.at(i-1);*/
             tipazo = matrizTipos(op1, op2, op);
+            qInfo() <<" ++++++++Tipazo sin x: " << tipazo;
+
             if (tipazo == "x"){
+                ui->txtErrores->appendPlainText("Error entre tipos: " + op1 + " " + op + " " + op2 + " = " + tipazo);
+                qInfo() <<" ++++++++Tipazo mal: " << tipazo;
+                qInfo() << "Error entre tipos: " + op1 + " " + op + " " + op2 + " = " + tipazo;
                 tipazo = op1;
+                qInfo() <<" ++++++++Tipazo parchado: " << tipazo;
             }
 
             //guardamso el nuevo valor, Rn, en pila de operandos
@@ -1174,6 +1183,8 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
         //qInfo() << "    Valor de I: " << i << ", Valor de Longitudinal: " << longitudinal << ", Longitud de la lista: " << concatenacion.length();
         if (concatenacion.at(i) == "+" || concatenacion.at(i) == "-"){
             op2 = concTipos.at(i+1); //El que está a la derecha
+            QString imp = op2;
+            qInfo() << " **********************La variable op2: "<<op2;
             concatenacion.removeAt(i+1);
             concTipos.removeAt(i+1);
 
@@ -1182,15 +1193,18 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
             concTipos.removeAt(i);
 
             op1 = concTipos.at(i-1); //El que está a la izquierda
+            QString imp2 = op;
+            qInfo() << " **********************La variable op1: "<<op1;
             concatenacion.removeAt(i-1);
             concTipos.removeAt(i-1);
-
+            qInfo() << "                        El operando2 es: " << imp;
+            qInfo() << "                        El operando2 es: " << imp2;
             tipazo = matrizTipos(op1, op2, op);
 
-            qInfo() << "                        El operando1 es: " << op2;
-            ui->txtErrores->appendPlainText("Error entre tipos: " + op1 + " " + op + " " + op2 + " = " + tipazo);
-            if (tipazo == "x"){
 
+            if (tipazo == "x"){
+                //ui->txtErrores->appendPlainText("Error entre tipos: " + concatenacion.at(0) + " y " + concatenacion.at(2));
+                qInfo() << "Error entre tipos: " + op1 + " " + op + " " + op2 + " = " + tipazo;
                 tipazo = op1;
             }
 
@@ -1207,6 +1221,7 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
     }
 
     if (concatenacion.length() == 3){
+
         for (int i = 0; i < operandos.length(); i++){
             //qInfo() << "    Operando en " << i << ": " << operandos.at(i);
             if (operandos.at(i) == concatenacion.at(0)){
@@ -1214,11 +1229,14 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
                 break;
             }
         }
+
         if (tipoFondoPila == concTipos.at(concTipos.length()-1)){
             qInfo() << "TODO BIEN :DDDDDD";
+            qInfo() << "Tipo fondo pila: " << tipoFondoPila << "     concTipos:  " << concTipos.at(concTipos.length()-1);
         } else {
-            qInfo() << "Errores (" << concatenacion.at(0) << " y " << concatenacion.at(2) << ")";
-            ui->txtErrores->appendPlainText("Error entre tipos: " + concatenacion.at(0) + " y " + concatenacion.at(2));
+            qInfo() << "                    Aqui hubo un error entre tipos: ";
+            ui->txtErrores->appendPlainText("Error entre tipos: " + concatenacion.at(0) + " = " + concatenacion.at(2));
+            qInfo() << "Tipo fondo pila: " << tipoFondoPila << "     concTipos:  " << concTipos.at(concTipos.length()-1);
         }
         R = tipoFondoPila;
     } else {
@@ -1247,27 +1265,27 @@ QString Widget::matrizTipos(QString op1, QString op2, QString oper){
 
 
     if(oper == "+"){
-        col = 0;
-    } else if(oper == "-"){
         col = 1;
-    } else if(oper == "" || oper == "/"){
+    } else if(oper == "-"){
         col = 2;
-    } else if(oper == "" || oper == "&&"){
+    } else if(oper == "*" || oper == "/"){
         col = 3;
-    } else if(oper == "%"){
+    } else if(oper == "||" || oper == "&&"){
         col = 4;
-    } else if(oper == "+="){
+    } else if(oper == "%"){
         col = 5;
-    } else if(oper == "-=" || oper == "=" || oper == "/=" || oper == "%="){
+    } else if(oper == "+="){
         col = 6;
-    } else if(oper == "<" || oper == ">" || oper == "<=" || oper == ">=" || oper == ""){
+    } else if(oper == "-=" || oper == "*=" || oper == "/=" || oper == "%="){
         col = 7;
-    } else if(oper == "==" || oper == "!="){
+    } else if(oper == "<" || oper == ">" || oper == "<=" || oper == ">="){
         col = 8;
+    } else if(oper == "==" || oper == "!="){
+        col = 9;
     }
 
     QString ent[5][11] = {
-        {"int","int", "int", "float", "bool", "int", "int", "int", "bool", "bool"},
+        {"int","int", "int", "int", "bool", "int", "int", "int", "bool", "bool"},
         {"float","float", "float", "float", "bool", "int", "float", "float", "bool", "bool"},
         {"char","x", "x", "x", "bool", "x", "x", "x", "x", "x"},
         {"string","x", "x", "x", "bool", "x", "x", "x", "x", "x"},
@@ -1392,7 +1410,6 @@ void Widget::cuadruplos(){
                     ui->table->item(i,1)->text() == "/" || ui->table->item(i,1)->text() == "=" || ui->table->item(i,1)->text() == "+=" ||
                     ui->table->item(i,1)->text() == ";"){
                 if (ui->table->item(i,1)->text() != ";"){
-
                     if (ui->table->item(i-1,0)->text() == "101"){
                         qInfo() << "    Metiendo ID: " << ui->table->item(i-1,1)->text();
                         semOpnd.append(ui->table->item(i-1,1)->text());
