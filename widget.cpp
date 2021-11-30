@@ -70,7 +70,7 @@ QList<int> tokens; int tokenconc = 0;
 QList<QString> lexemas; int lexemaconc = 0;
 
 
-// ELDA - SEMÁNTICO
+// SEMÁNTICO
 bool buliano = false;
 QList<QString> operadores;
 QList<QString> operandos;
@@ -1123,6 +1123,7 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
             tipazo = matrizTipos(op1, op2, op);
             if (tipazo == "x"){
                 tipazo = op1;
+
             }
 
             //guardamso el nuevo valor, Rn, en pila de operandos
@@ -1185,7 +1186,11 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
             concTipos.removeAt(i-1);
 
             tipazo = matrizTipos(op1, op2, op);
+
+            qInfo() << "                        El operando1 es: " << op2;
+            ui->txtErrores->appendPlainText("Error entre tipos: " + op1 + " " + op + " " + op2 + " = " + tipazo);
             if (tipazo == "x"){
+
                 tipazo = op1;
             }
 
@@ -1212,7 +1217,8 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
         if (tipoFondoPila == concTipos.at(concTipos.length()-1)){
             qInfo() << "TODO BIEN :DDDDDD";
         } else {
-            qInfo() << "Los tipos no coinciden (" << concatenacion.at(0) << "y" << concatenacion.at(2) << ")";
+            qInfo() << "Errores (" << concatenacion.at(0) << " y " << concatenacion.at(2) << ")";
+            ui->txtErrores->appendPlainText("Error entre tipos: " + concatenacion.at(0) + " y " + concatenacion.at(2));
         }
         R = tipoFondoPila;
     } else {
