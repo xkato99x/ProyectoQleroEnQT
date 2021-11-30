@@ -1474,7 +1474,6 @@ void Widget::cuadruplos(){
                 tablaCuadruplos(semOpnd.at(i+2), semOpnd.at(i+1), semOpnd.at(i+3), erre);
                 tablaCuadruplos("SF", erre, "", "");
 
-
                 tablaOperandos(semOpnd.at(i+1));
                 tablaOperadores(semOpnd.at(i+2));
                 tablaOperandos(semOpnd.at(i+3));
@@ -1482,6 +1481,7 @@ void Widget::cuadruplos(){
                 qInfo() << "                    Metió a pila de operandos y operadores";
 
                 saltos.append(ui->tablaCuadruplos->rowCount());
+                tablaSaltos(saltos.at(saltos.length()-1));
                 qInfo() << "                Guarda " << ui->tablaCuadruplos->rowCount() << " en la pila de saltos";
                 qInfo() << "                    Eliminando " << semOpnd.at(i+3) << " de la pila semOpnd, su tamaño ahora es: " << semOpnd.length();
                 semOpnd.remove(i+3);
@@ -1512,7 +1512,8 @@ void Widget::cuadruplos(){
                 tablaOperandos(erre);
                 qInfo() << "                    Metió a pila de operandos y operadores";
 
-                saltos.append(ui->tablaCuadruplos->rowCount());
+                saltos.append(ui->tablaCuadruplos->rowCount()+1);
+                tablaSaltos(saltos.at(saltos.length()-1));
 
                 qInfo() << "                    Eliminando " << semOpnd.at(i+6) << " de la pila semOpnd, su tamaño ahora es: " << semOpnd.length();
                 semOpnd.remove(i+6);
@@ -1531,11 +1532,11 @@ void Widget::cuadruplos(){
                 qInfo() << "                Eliminó las instrucciones FOR de la pila";
                 //i--;
             } else if (semOpnd.at(i) == "do"){
-                qInfo() << "        Va entrar al ciclo DO con un " << semOpnd.at(i) << "\n             Va a meter a la tabla SI";
+                qInfo() << "        Va entrar al ciclo DO con un " << semOpnd.at(i) << ", Va a meter a la tabla SI";
                 qInfo() << "        SemOpnd en " <<i<< ":" << semOpnd.at(i);
-                qInfo() << "        SemOpnd en " <<i<< ":" << semOpnd.at(i);
-                saltos.append(ui->tablaCuadruplos->rowCount()+1);
                 qInfo() << "            Metemos a la pila de saltos " << ui->tablaCuadruplos->rowCount()+1;
+                saltos.append(ui->tablaCuadruplos->rowCount()+1);
+                tablaSaltos(saltos.at(saltos.length()-1));
                 semOpnd.removeAt(i);
                 qInfo() << "        SemOpnd en " <<i<< ":" << semOpnd.at(i);
                 i--;
@@ -1545,10 +1546,11 @@ void Widget::cuadruplos(){
                 || semOpnd.at(i) == "eval" || semOpnd.at(i) == "endif"){
             //qInfo() << "        Debió entrar a un END ";
             if (semOpnd.at(i) == "else"){
-                qInfo() << "            ELSE || ENDIF";
+                qInfo() << "            ELSE";
                 //RELLENAR SALTOS DE UN WHILE Y UN IF
                 tablaCuadruplos("SI","","","");
-                //qInfo() << "                Metemos en " << saltos.at(saltos.length()-1) << " esto " << ui->tablaCuadruplos->rowCount()+1;
+
+                qInfo() << "        Metiendo " << ui->tablaCuadruplos->rowCount()+1 << ", en la tabla de cuadruplos, en la posición: " << saltos.at(saltos.length()-1);
                 tablaCuad_MeterSalto(saltos.at(saltos.length()-1), ui->tablaCuadruplos->rowCount()+1);
                 tablaSaltos(saltos.at(saltos.length()-1));
                 saltos.append(ui->tablaCuadruplos->rowCount());
@@ -1569,10 +1571,9 @@ void Widget::cuadruplos(){
                 tablaCuad_MeterSalto(saltos.at(saltos.length()-1), ui->tablaCuadruplos->rowCount()+1);
                 qInfo() << "    UI+1: " << ui->tablaCuadruplos->rowCount() << " ||| SALTOS AT SAL-1: " << saltos.at(saltos.length()-1);
                 tablaCuad_MeterSalto(ui->tablaCuadruplos->rowCount(), saltos.at(saltos.length()-1));
-                tablaSaltos(saltos.at(saltos.length()-1));
 
-                tablaSaltos(saltos.at(saltos.length()-1));
                 saltos.append(ui->tablaCuadruplos->rowCount());
+                tablaSaltos(saltos.at(saltos.length()-1));
                 qInfo() << "        Se eliminará el último de la pila de saltos";
                 //saltos.removeLast();
                 qInfo() << "        Se eliminó el último de la pila de saltos";
@@ -1586,14 +1587,19 @@ void Widget::cuadruplos(){
                 tablaCuadruplos(semOpnd.at(i+2), semOpnd.at(i+1), semOpnd.at(i+3), erre);
                 tablaCuadruplos("SF", erre, "", "");
 
+                qInfo() << "        Metiendo " << ui->tablaCuadruplos->rowCount()+1 << ", en la tabla de cuadruplos, en la posición: " << saltos.at(saltos.length()-1);
+                tablaCuad_MeterSalto(saltos.at(saltos.length()-1), ui->tablaCuadruplos->rowCount()+1);
+                tablaSaltos(saltos.at(saltos.length()-1));
+                saltos.removeLast();
+
+                saltos.append(ui->tablaCuadruplos->rowCount());
+                qInfo() << "                Guarda " << ui->tablaCuadruplos->rowCount() << " en la pila de saltos";
+
                 tablaOperandos(semOpnd.at(i+1));
                 tablaOperadores(semOpnd.at(i+2));
                 tablaOperandos(semOpnd.at(i+3));
                 tablaOperandos(erre);
                 qInfo() << "                    Metió a pila de operandos y operadores";
-
-                saltos.append(ui->tablaCuadruplos->rowCount());
-                qInfo() << "                Guarda " << ui->tablaCuadruplos->rowCount() << " en la pila de saltos";
 
                 qInfo() << "                    Eliminando " << semOpnd.at(i+3) << " de la pila semOpnd, su tamaño ahora es: " << semOpnd.length();
                 semOpnd.remove(i+3);
@@ -1607,7 +1613,8 @@ void Widget::cuadruplos(){
             } else if (semOpnd.at(i) == "endfor"){  //RELLENAR SALTOS DE UN FOR
                 tablaCuadruplos("SI","","","");
                 qInfo() << "                Metemos en " << saltos.at(saltos.length()-1) << " esto " << ui->tablaCuadruplos->rowCount()+1;
-                tablaCuad_MeterSalto(saltos.at(saltos.length()-1), ui->tablaCuadruplos->rowCount()+1);
+                tablaCuad_MeterSalto(saltos.at(saltos.length()-1)-1, ui->tablaCuadruplos->rowCount()+1);
+                tablaCuad_MeterSalto(ui->tablaCuadruplos->rowCount(), saltos.at(saltos.length()-1)-1);
                 tablaSaltos(saltos.at(saltos.length()-1));
                 saltos.append(ui->tablaCuadruplos->rowCount());
                 qInfo() << "        Se eliminará el último de la pila de saltos";
@@ -1622,6 +1629,7 @@ void Widget::cuadruplos(){
                 tablaCuadruplos("SV", erre, "", "");
 
                 tablaCuad_MeterSalto(ui->tablaCuadruplos->rowCount(), saltos.at(saltos.length()-1));
+                saltos.removeLast();
 
                 tablaOperandos(semOpnd.at(i+1));
                 tablaOperadores(semOpnd.at(i+2));
@@ -1648,6 +1656,7 @@ void Widget::cuadruplos(){
 
         if (semOpnd.at(i) == "write"){
             tablaCuadruplos("Write","","","");
+            qInfo() << "    Eliminamos " << semOpnd.at(i) << "de la pila";
             semOpnd.removeAt(i);
             i--;
         }
