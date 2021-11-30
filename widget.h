@@ -56,5 +56,7 @@ private:
     void tablaCuad_MeterSalto(int pos, int res);
     QString jerarquiaCuadruplos(QList<QString> a);
     void tablaSaltos(int x);
+    void tablaOperandos(QString x);
+    void tablaOperadores(QString x);
 };
 #endif // WIDGET_H

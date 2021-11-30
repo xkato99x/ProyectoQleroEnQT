@@ -184,7 +184,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;		else&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;			write(&amp;quot;&amp;quot;);&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;		endif;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	                                     	B = C;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                                     	B = C;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                                	while (B &amp;gt;= A)&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;			A += B;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;    		endwhile;&lt;/p&gt;
@@ -530,7 +530,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>500</x>
      <y>440</y>
-     <width>411</width>
+     <width>421</width>
      <height>521</height>
     </rect>
    </property>
@@ -723,7 +723,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>940</x>
+     <x>950</x>
      <y>410</y>
      <width>161</width>
      <height>31</height>
@@ -748,7 +748,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="geometry">
     <rect>
-     <x>940</x>
+     <x>950</x>
      <y>705</y>
      <width>161</width>
      <height>21</height>
@@ -770,9 +770,9 @@ p, li { white-space: pre-wrap; }
   <widget class="QTableWidget" name="tablaOperandos">
    <property name="geometry">
     <rect>
-     <x>940</x>
+     <x>950</x>
      <y>440</y>
-     <width>331</width>
+     <width>321</width>
      <height>241</height>
     </rect>
    </property>
@@ -820,9 +820,9 @@ p, li { white-space: pre-wrap; }
   <widget class="QTableWidget" name="tablaOperadores">
    <property name="geometry">
     <rect>
-     <x>940</x>
+     <x>950</x>
      <y>730</y>
-     <width>331</width>
+     <width>321</width>
      <height>231</height>
     </rect>
    </property>
