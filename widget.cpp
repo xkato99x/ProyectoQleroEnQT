@@ -1487,9 +1487,11 @@ void Widget::cuadruplos(){
         if (semOpnd.at(i) != "if" && semOpnd.at(i) != "for" && semOpnd.at(i) != "while" && semOpnd.at(i) != "do"){
             //qInfo() << "  NO tenemos palabra reservada";
             cont++;
-            //qInfo() << "    Contador = " << cont;
+            qInfo() << "    Contador = " << cont << ", i =" << i << ", Longitud de semOpnd:" << semOpnd.length();
 
-        } else if (semOpnd.at(i) == "if" || semOpnd.at(i) == "for" || semOpnd.at(i) == "while" || semOpnd.at(i) == "do"){
+        } else if (i == semOpnd.length()-1){
+            qInfo() << "            I es = a longitud de semOpnd-1: " << semOpnd.length();
+        } else if (semOpnd.at(i) == "if" || semOpnd.at(i) == "for" || semOpnd.at(i) == "while" || semOpnd.at(i) == "do" || cont == semOpnd.length()){
             for (apunt; apunt < cont; apunt++) {
                 qInfo() << "    Metiendo en la pila auxiliar: " << semOpnd.at(apunt);
                 auxiliar.append(semOpnd.at(apunt));
@@ -1694,6 +1696,16 @@ void Widget::cuadruplos(){
             qInfo() << "    Eliminamos " << semOpnd.at(i) << "de la pila";
             semOpnd.removeAt(i);
             i--;
+        }
+
+        if (apunt+1 != cont && i == semOpnd.length()-1){
+            for (apunt; apunt < cont; apunt++) {
+                qInfo() << "    Metiendo en la pila auxiliar: " << semOpnd.at(apunt);
+                auxiliar.append(semOpnd.at(apunt));
+            }
+            qInfo() << "    Llama a método jerarquiaCuadruplos";
+            aux = jerarquiaCuadruplos(auxiliar);
+            auxiliar.clear();
         }
     }
 
