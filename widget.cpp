@@ -951,7 +951,7 @@ void Widget::semantico(){
         tablaTipos(operandos.at(i), tipo.at(i));
     }
 
-    //CICLO PARA VER LOS OPERADORES
+    /*//CICLO PARA VER LOS OPERADORES
     for (int i = 0; i < operadores.length(); i++) {
         qInfo() << "        Operador en " << i << operadores.at(i) << ", " << oprsSeparador.at(i) << "\n";
     }
@@ -959,13 +959,14 @@ void Widget::semantico(){
     //CICLO PARA VER LOS OPERANDOS PARA LAS OPERACIONES
     for (int i = 0; i < semOpnd.length(); i++) {
         qInfo() << "            Operando en " << i << semOpnd.at(i) << ", " << semOpndSeparador.at(i) << "\n";
-    }
+    }*/
 
     //ELIMINAR TIPOS REDUNDANTES
     int redun = 0;
     for (int i = 0; i < operandos.length(); i++) {
         for (int j = 0; j < operandos.length(); j++) {
             if (operandos.at(i) == operandos.at(j) && tipo.at(i) != tipo.at(j) && i != j){
+                ui->txtErrores->appendPlainText("Declaración de variables múltiples en un ámbito: " + operandos.at(i) + " es de tipo " + tipo.at(i));
                 operandos.removeAt(j);
                 tipo.removeAt(j);
                 tiposNota("Declaración de variables múltiples en un ámbito");
@@ -983,6 +984,7 @@ void Widget::semantico(){
             } else if (j == operandos.length()-1 && container == false){
                 //qInfo() << "                            Meter variable no definida";
                 operandos.append(semOpnd.at(i));
+                ui->txtErrores->appendPlainText("Error: Variable " + operandos.at(operandos.length()-1) + " no asignada, asignandole el tipo int");
                 tipo.append("int");
                 tablaTipos(operandos.at(operandos.length()-1), tipo.at(tipo.length()-1));
                 tiposNota("Error; Variable no definida.");
@@ -1001,17 +1003,17 @@ void Widget::semantico(){
     bool ops1 = true; bool ops2 = true;
     while (contadorSem < semOpnd.length()){
         if (ops1 == true){
-            qInfo() << "Ingresando al auxiliar: " << semOpnd.at(opnd) << "     Valor de oprs: " << opnd;
+            //qInfo() << "Ingresando al auxiliar: " << semOpnd.at(opnd) << "     Valor de oprs: " << opnd;
             auxOperandos.append(semOpnd.at(opnd));
             opnd++;
         }
         if (ops2 == true){
-            qInfo() << "Ingresando al auxiliar: " << operadores.at(oprs) << "     Valor de oprs: " << oprs;
+            //qInfo() << "Ingresando al auxiliar: " << operadores.at(oprs) << "     Valor de oprs: " << oprs;
             auxOperadores.append(operadores.at(oprs));
             oprs++;
         }
         if (semOpndSeparador.at(opnd) == ";"){
-            qInfo() << "Ingresando al auxiliar: " << semOpnd.at(opnd) << "     Valor de oprs: " << opnd;
+            //qInfo() << "Ingresando al auxiliar: " << semOpnd.at(opnd) << "     Valor de oprs: " << opnd;
             auxOperandos.append(semOpnd.at(opnd));
             opnd++;
             ops1 = false;
@@ -1063,7 +1065,9 @@ void Widget::ingresaTipos(QList<QString> a, QList<QString> b){
 
     //IMPRIMIR EN LA TABLA
 }
+
 QString op1, op2, op, tipazo;
+
 QString Widget::operacionTipos(QList<QString> concatenacion){
     QString R;
     //QString op1, op2, op, tipazo;
@@ -1077,19 +1081,24 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
     //Ciclo para igualar las pilas concatenacion y concTipos
     for (int i = 0; i < concatenacion.length(); i++ ){
         for (int j = 0; j < operandos.length(); j++) {
+            qInfo() << "            Comparando " << concatenacion.at(i) << " con " << operandos.at(j) << ", de tipo " << tipo.at(j);
             if (concatenacion.at(i) == operandos.at(j)){
+                qInfo() << "                Encontró igualdad. concTipos en" << i << "(" << concatenacion.at(i) << ") ahora vale" << tipo.at(j);
                 concTipos.append(tipo.at(j));
-            } else /*if(concatenacion.at(i) == operadores.at(j))*/{
+                break;
+            } else if(concatenacion.at(i) == "+" || concatenacion.at(i) == "-" || concatenacion.at(i) == "*" || concatenacion.at(i) == "/" ||
+                      concatenacion.at(i) == "^" || concatenacion.at(i) == "(" || concatenacion.at(i) == ")" || concatenacion.at(i) == "+=" ||
+                      concatenacion.at(i) == "-=" || concatenacion.at(i) == "=" || concatenacion.at(i) == "=="){
+                qInfo() << "                Encontró igualdad. concTipos en" << i << "ahora está vacío";
                 concTipos.append("");
+                break;
             }
         }
     }
-    //qInfo() << "            ESTAMOS AQUIIIIIIIIIIIIIIIIIIIIIIII";
 
-    //CICLO PARA VER LO QUE TIENE CONCATENACION
-    /*for (int i = 0; i < concatenacion.length() ; i++) {
-        qInfo() << "Operando en " << i << concatenacion.at(i) << ", tipo #" << i << concTipos.at(i) << "\n";
-    }*/
+    for (int i = 0; i < concatenacion.length(); i++) {
+        qInfo() << "                ID: " << concatenacion.at(i) << ", Tipo: " << concTipos.at(i);
+    }
 
     for (int i = 0; i < concatenacion.length(); i++){ //Ciclo para los paréntesis
         if (concatenacion.at(i) == "("){
@@ -1139,19 +1148,22 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
         }
     }
 
-    for (int i = 0; i < longitudinal; i++){ //ciclo para potencia y raiz
-        //qInfo() << "    Valor de I: " << i << ", Valor de Longitudinal: " << longitudinal << ", Longitud de la lista: " << concatenacion.length();
+    for (int i = 0; i < longitudinal; i++){ //ciclo para multiplicaciones y divisiones
+        qInfo() << "    Valor de I: " << i << ", Valor de Longitudinal: " << longitudinal << ", Longitud de la lista: " << concatenacion.length();
         if (concatenacion.at(i) == "*" || concatenacion.at(i) == "/"){
+            qInfo() << "        Asignando: OP2 =" << concTipos.at(i+1) << ", OPER =" << concatenacion.at(i) << ", OP1 =" <<concTipos.at(i-1);
             op2 = concTipos.at(i+1); //El que está a la derecha
             concatenacion.removeAt(i+1);
             concTipos.removeAt(i+1);
-
+                qInfo() << "                        Se asignó op2: " << op2;
             op = concatenacion.at(i);
             concatenacion.removeAt(i); //Operador
             concTipos.removeAt(i);
+            qInfo() << "                        Se asignó oper: " << op;
 
             op1 = concTipos.at(i-1); //El que está a la izquierda
-            qInfo() <<" ++++++++Op1: " << op1<< "concTipos(i-1): " << concTipos.at(i);
+            qInfo() << "                    Se asignó op1: " << op1;
+
             concatenacion.removeAt(i-1);
             concTipos.removeAt(i-1);
             /*qInfo() << "+++++El valor de op1: " << op1;
@@ -1179,7 +1191,7 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
         }
     }
 
-    for (int i = 0; i < concatenacion.length(); i++){ //ciclo para potencia y raiz
+    for (int i = 0; i < concatenacion.length(); i++){ //ciclo para sumas y restas
         //qInfo() << "    Valor de I: " << i << ", Valor de Longitudinal: " << longitudinal << ", Longitud de la lista: " << concatenacion.length();
         if (concatenacion.at(i) == "+" || concatenacion.at(i) == "-"){
             op2 = concTipos.at(i+1); //El que está a la derecha
