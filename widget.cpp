@@ -1697,11 +1697,14 @@ void Widget::cuadruplos(){
             semOpnd.removeAt(i);
             i--;
         }
-
-        if (apunt+1 != cont && i == semOpnd.length()-1){
+        qInfo() << "            Cont =" << cont << ", Apunt+1 =" << apunt+1;
+        if (apunt+1 < cont && i == semOpnd.length()-1){
             for (apunt; apunt < cont; apunt++) {
-                qInfo() << "    Metiendo en la pila auxiliar: " << semOpnd.at(apunt);
-                auxiliar.append(semOpnd.at(apunt));
+                if (apunt < semOpnd.length()){
+                    qInfo() << "    Metiendo en la pila auxiliar: " << semOpnd.at(apunt);
+                    auxiliar.append(semOpnd.at(apunt));
+                    qInfo() << "        Se metió " << semOpnd.at(apunt);
+                }
             }
             qInfo() << "    Llama a método jerarquiaCuadruplos";
             aux = jerarquiaCuadruplos(auxiliar);
@@ -1777,22 +1780,8 @@ QString Widget::jerarquiaCuadruplos(QList<QString> a){
         qInfo() << "            Recursivo en [" << i << "]: " << recursivo.at(i);
     }*/
 
-    //METER OPERANDOS Y OPERADORES A SUS TABLAS
-    /*for (int i = 0; i < recursivo.length(); i++) {
-        if (recursivo.at(i) == "+" || recursivo.at(i) == "-" || recursivo.at(i) == "*" || recursivo.at(i) == "/" || recursivo.at(i) == "^" ||
-                recursivo.at(i) == "+=" || recursivo.at(i) == "="){
-            tablaOperadores(recursivo.at(i));
-            qInfo() << "            Elemento a la izquierda del" << recursivo.at(i) << ":" << recursivo.at(i-1);
-        } else if (recursivo.at(i) != "if" && recursivo.at(i) != "for" && recursivo.at(i) != "while" && recursivo.at(i) != "do" &&
-                   recursivo.at(i) != "elseif" && recursivo.at(i) != "endif" && recursivo.at(i) != "endif" && recursivo.at(i) != "endfor" &&
-                   recursivo.at(i) != "endwhile" && recursivo.at(i) != "enddo" && recursivo.at(i) != "else" && recursivo.at(i) != "==" &&
-                   recursivo.at(i) != ">=" && recursivo.at(i) != "<=" ){
-            tablaOperandos(recursivo.at(i));
-        }
-    }*/
-
     //qInfo() << "                    Va a comparar por la jerarquia ahora sí";
-    bool v = true;
+    bool v = false;
     QString oper = "", op1 = "", op2 = "", res = "";
     QList<QString> conc;
     for (int j = 0; j < recursivo.length(); j++){ //Ciclo para los paréntesis
@@ -1804,6 +1793,8 @@ QString Widget::jerarquiaCuadruplos(QList<QString> a){
 
         if (v == true){
             //conc.append(concatenacion.at(i));
+            qInfo() << "            Metiendo MFF con " << recursivo.at(j);
+            tablaOperandos("MFF");
         }
     }
     if (conc.length() > 2){
