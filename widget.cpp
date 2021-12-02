@@ -1142,6 +1142,7 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
             erre += QString::number(temporalTipos);
             temporalTipos++;
 
+            tablaTipos(erre, tipazo);
             concatenacion.append((erre));
             concTipos.append(tipazo);
             longitudinal = concatenacion.length();
@@ -1185,6 +1186,7 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
             erre += QString::number(temporalTipos);
             temporalTipos++;
 
+            tablaTipos(erre, tipazo);
             concatenacion.append((erre));
             concTipos.append(tipazo);
             longitudinal = concatenacion.length();
@@ -1226,6 +1228,7 @@ QString Widget::operacionTipos(QList<QString> concatenacion){
             erre += QString::number(temporalTipos);
             temporalTipos++;
 
+            tablaTipos(erre, tipazo);
             concatenacion.append((erre));
             concTipos.append(tipazo);
             longitudinal = concatenacion.length();
