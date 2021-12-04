@@ -81,28 +81,22 @@ apagaB:
     ret
     
 memoria:
-    ldi r19,1
     lds r16,0x100
-    ldi r17,0
-    cpse r16,r17
-    0x
+    cpi r16,0
+    breq memUno
     
-    ldi r19,2
     lds r16,0x101
     cpi r16,0
     breq memDos
     
-    ldi r19,3
     lds r16,0x102
     cpi r16,0
     breq memTres
     
-    ldi r19,4
     lds r16,0x103
     cpi r16,0
     breq memCuatro
     
-    ldi r19,5
     lds r16,0x104
     cpi r16,0
     breq memCinco
@@ -111,31 +105,22 @@ memoria:
     
 memUno:
     sts 0x100,r31
-    call display
     rjmp start
     
 memDos:
     sts 0x101,r31
-    call display
     rjmp start
     
 memTres:
     sts 0x102,r31
-    call display
     rjmp start
     
 memCuatro:
     sts 0x103,r31
-    call display
     rjmp start
     
 memCinco:
     sts 0x104,r31
-    call display
-    rjmp start
-    
-display:
-    out portc,r19	;Prendemos el display según lo que tenga R19
     rjmp start
     
 start:
@@ -144,8 +129,8 @@ start:
     // TERCER PIN
     ldi r16,0b00000100
     out portd,r16
-    //sbic portd,1
-    call tercer
+    sbic portd,1
+    call reinicio
     
     call miniDelay
     call apagaD
@@ -153,7 +138,11 @@ start:
     // CUARTO PIN
     ldi r16,0b00001000
     out portd,r16
-    call cuarto
+    
+    sbic portd,0
+    call cuatroUno
+    sbic portd,1
+    call cuatroDos
     
     call miniDelay
     call apagaD
@@ -161,13 +150,21 @@ start:
     // QUINTO PIN
     ldi r16,0b00010000
     out portd,r16
-    call quinto
+    
+    sbic portd,0
+    call cincoUno
+    sbic portd,1
+    call cincoDos
     
     call miniDelay
     call apagaD
     
     rjmp start
  
+compara:
+    
+    ret
+    
 apagaD:
     ldi r16,0
     out portd,r16
@@ -180,38 +177,43 @@ correcto:
     ret
     
 erroneo:
+    ldi r16,0b00100000
+    out portb,r16
+    call delay
+    call delay
+    call delay
     ldi r16,0
+    out portb,r16
     out portc,r16
     ret
 
-tercer:
-    reinicio:
-    /*ldi r16,0
+reinicio:
+    ldi r16,0
     out portc,r16
     sts 0x100,r16
     sts 0x101,r16
     sts 0x102,r16
     sts 0x103,r16
     sts 0x104,r16
-    sbis pind,1*/
+    sbis pind,1
     ret
     rjmp reinicio
     
+cuatroUno:	    ;Presionamos el botón del led AZUL
+    call compara
+    ret
     
-cuarto:
-    cuatroUno:	    ;Presionamos el botón del led AZUL
+cuatroDos:	    ;Presionamos el botón del led VERDE
+    call compara
+    ret
+
+cincoUno:		    ;Presionamos el botón del led ROJO
+    call compara
+    ret
     
-    
-    cuatroDos:	    ;Presionamos el botón del led VERDE
-    
-    
-quinto:
-    cincoUno:		    ;Presionamos el botón del led ROJO
-    call memoria
-    
-    cincoDos:	    	    ;Presionamos el botón del led AMARILLO
-    
-    
+cincoDos:	    	    ;Presionamos el botón del led AMARILLO
+    call compara
+    ret
     
 pseudo:
     inc r31
@@ -248,3 +250,17 @@ eti5: nop		;NOP = No Operación (4 uS por iteración)
     dec r16		;Decrementa en 1 a R18
     brne eti3	;Mientras ZF=0, brinca a ETI0
     ret		;Retorna el control
+    
+microDelay:
+    ldi r16,0x1
+eti6: ldi r17,100	;Carga a R19 con el valor 250
+eti7: ldi r18,100	;Carga a R20 con el valor 250
+eti8: nop		;NOP = No Operación (4 uS por iteración)
+    dec r18		;Decrementa en 1 a R20
+    brne eti8	;Mientras ZF=0, brinca a ETI2
+    dec r17		;Decrementa en 1 a R19
+    brne eti7	;Mientras ZF=0, brinca a ETI1
+    dec r16		;Decrementa en 1 a R18
+    brne eti6	;Mientras ZF=0, brinca a ETI0
+    ret		;Retorna el control
+    
