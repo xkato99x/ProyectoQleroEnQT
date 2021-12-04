@@ -1,8 +1,9 @@
     ldi R31,0b00000000		    ;R31 se va a usar para comparar con el pseudo
     ldi r16,0b00011100		    ;R16 carga los pines 0 y 1 como entrada y los demás como salida en el puerto D
     out ddrd,r16 
-    ldi r17,0xff		    ;R17 carga todos los pines como salida
-    out ddrb,r17
+    ldi r16,0xff		    ;R16 carga todos los pines como salida
+    out ddrb,r16
+    ldi r19,0			    ;R19 será para el display
     
     ldi r16,0b00000100		    ;R22 es para mandar voltaje a los pines 2,3,4
     out pind,r16
@@ -45,42 +46,34 @@ random:
 azul:
     ldi r16,0b00000001
     out portb,r16
-    call memoria
-    call delay
     call delay
     call apagaB
-    call miniDelay
-    rjmp start
+    call delay
+    call memoria
     
 verde:
     ldi r16,0b00000010
     out portb,r16
-    call memoria
-    call delay
     call delay
     call apagaB
-    call miniDelay
-    rjmp start
+    call delay
+    call memoria
     
 rojo:
     ldi r16,0b00000100
     out portb,r16
-    call memoria
-    call delay
     call delay
     call apagaB
-    call miniDelay
-    rjmp start
+    call delay
+    call memoria
     
 amarillo:
     ldi r16,0b00001000
     out portb,r16
-    call memoria
-    call delay
     call delay
     call apagaB
-    call miniDelay
-    rjmp start
+    call delay
+    call memoria
   
 apagaB:
     ldi r16,0
@@ -88,14 +81,70 @@ apagaB:
     ret
     
 memoria:
+    ldi r19,1
+    lds r16,0x100
+    ldi r17,0
+    cpse r16,r17
+    0x
+    
+    ldi r19,2
+    lds r16,0x101
+    cpi r16,0
+    breq memDos
+    
+    ldi r19,3
+    lds r16,0x102
+    cpi r16,0
+    breq memTres
+    
+    ldi r19,4
+    lds r16,0x103
+    cpi r16,0
+    breq memCuatro
+    
+    ldi r19,5
+    lds r16,0x104
+    cpi r16,0
+    breq memCinco
     
     ret
     
+memUno:
+    sts 0x100,r31
+    call display
+    rjmp start
+    
+memDos:
+    sts 0x101,r31
+    call display
+    rjmp start
+    
+memTres:
+    sts 0x102,r31
+    call display
+    rjmp start
+    
+memCuatro:
+    sts 0x103,r31
+    call display
+    rjmp start
+    
+memCinco:
+    sts 0x104,r31
+    call display
+    rjmp start
+    
+display:
+    out portc,r19	;Prendemos el display según lo que tenga R19
+    rjmp start
+    
 start:
+    call pseudo
     in r16,pind ;pin 0
     // TERCER PIN
     ldi r16,0b00000100
     out portd,r16
+    //sbic portd,1
     call tercer
     
     call miniDelay
@@ -134,25 +183,33 @@ erroneo:
     ldi r16,0
     out portc,r16
     ret
-    
-    
-    
+
 tercer:
-    tresDos:
+    reinicio:
+    /*ldi r16,0
+    out portc,r16
+    sts 0x100,r16
+    sts 0x101,r16
+    sts 0x102,r16
+    sts 0x103,r16
+    sts 0x104,r16
+    sbis pind,1*/
+    ret
+    rjmp reinicio
     
     
 cuarto:
-    cuatroUno:
+    cuatroUno:	    ;Presionamos el botón del led AZUL
     
     
-    cuatroDos:
+    cuatroDos:	    ;Presionamos el botón del led VERDE
     
     
 quinto:
-    cincoUno:
+    cincoUno:		    ;Presionamos el botón del led ROJO
+    call memoria
     
-    
-    cincoDos:
+    cincoDos:	    	    ;Presionamos el botón del led AMARILLO
     
     
     
