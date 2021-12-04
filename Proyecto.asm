@@ -7,6 +7,19 @@
     
     ldi r16,0b00000100		    ;R22 es para mandar voltaje a los pines 2,3,4
     out pind,r16
+    
+inicio:
+    ldi r16,0b00011100
+    out ddrd,r16
+    ldi r16,0
+    out portb,r16
+    out portc,r16
+    sts 0x100,r16
+    sts 0x101,r16
+    sts 0x102,r16
+    sts 0x103,r16
+    sts 0x104,r16
+    
 boton_inicio:
     call pseudo
     sbic pind,0			    ;Salta la sig. instrucción si el bit de la pos. 0 está apagado (0), osea, el botón no se aprieta
@@ -127,49 +140,121 @@ start:
     call pseudo
     in r16,pind ;pin 0
     // TERCER PIN
+    call pseudo
     ldi r16,0b00000100
     out portd,r16
-    sbic portd,1
-    call reinicio
+    in r17,pind
+    cpi r17,0b00000110
+    //breq reinicio
     
     call miniDelay
     call apagaD
     
     // CUARTO PIN
+    call pseudo
     ldi r16,0b00001000
     out portd,r16
     
-    sbic portd,0
-    call cuatroUno
-    sbic portd,1
+    in r17,pind
+    cpi r17,0b00001001
+    breq cuatroUno
+    in r17,pind
+    cpi r17,0b00001010
     call cuatroDos
     
     call miniDelay
     call apagaD
     
     // QUINTO PIN
+    call pseudo
     ldi r16,0b00010000
     out portd,r16
     
-    sbic portd,0
-    call cincoUno
-    sbic portd,1
+    in r17,pind
+    cpi r17,0b00010001
+    breq cincoUno
+    in r17,pind
+    cpi r17,0b00010010
     call cincoDos
     
     call miniDelay
     call apagaD
     
     rjmp start
+    
+cuatroUno:	    ;Presionamos el botón del led AZUL
+    ldi r16,9
+    out portc,r16
+    call delay
+    call delay
+    call delay
+    call delay
+    sbis pind,0
+    rjmp compara
+    rjmp cuatroUno
+    
+cuatroDos:	    ;Presionamos el botón del led VERDE
+    ldi r16,8
+    out portc,r16
+    call delay
+    call delay
+    call delay
+    call delay
+    sbis pind,1
+    rjmp compara
+    rjmp cuatroDos
+
+cincoUno:		    ;Presionamos el botón del led ROJO
+    sbis pind,0
+    rjmp compara
+    rjmp cincoUno
+    
+cincoDos:	    	    ;Presionamos el botón del led AMARILLO
+    sbis pind,1
+    rjmp compara
+    rjmp cincoDos
+
+reinicio:
+    ldi r16,0
+    out portb,r16
+    call miniDelay
+    ldi r16,1
+    out portb,r16
+    call miniDelay
+    ldi r16,2
+    out portb,r16
+    call miniDelay
+    ldi r16,3
+    out portb,r16
+    call miniDelay
+    ldi r16,4
+    out portb,r16
+    call miniDelay
+    ldi r16,5
+    out portb,r16
+    call miniDelay
+    call miniDelay
+    
+    rjmp sueltaReinicio
+    
+sueltaReinicio:
+    sbis pind,1
+    rjmp inicio
+    rjmp reinicio
+    
+
  
 compara:
+    lds r16,0x100
+    cpi r16,0
+    ;breq UnPunto
+    
+    rjmp start
+    
+UnPunto:
     
     ret
-    
-apagaD:
-    ldi r16,0
-    out portd,r16
-    ret
-    
+     
 correcto:
     in r16,portc
     inc r16
@@ -187,32 +272,9 @@ erroneo:
     out portc,r16
     ret
 
-reinicio:
+apagaD:
     ldi r16,0
-    out portc,r16
-    sts 0x100,r16
-    sts 0x101,r16
-    sts 0x102,r16
-    sts 0x103,r16
-    sts 0x104,r16
-    sbis pind,1
-    ret
-    rjmp reinicio
-    
-cuatroUno:	    ;Presionamos el botón del led AZUL
-    call compara
-    ret
-    
-cuatroDos:	    ;Presionamos el botón del led VERDE
-    call compara
-    ret
-
-cincoUno:		    ;Presionamos el botón del led ROJO
-    call compara
-    ret
-    
-cincoDos:	    	    ;Presionamos el botón del led AMARILLO
-    call compara
+    out portd,r16
     ret
     
 pseudo:
@@ -241,7 +303,7 @@ eti2: nop		;NOP = No Operación (4 uS por iteración)
 miniDelay:
     ldi r16,0x1
 eti3: ldi r17,200	;Carga a R19 con el valor 250
-eti4: ldi r18,150	;Carga a R20 con el valor 250
+eti4: ldi r18,200	;Carga a R20 con el valor 250
 eti5: nop		;NOP = No Operación (4 uS por iteración)
     dec r18		;Decrementa en 1 a R20
     brne eti5	;Mientras ZF=0, brinca a ETI2
