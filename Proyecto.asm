@@ -3,7 +3,6 @@
     out ddrd,r16 
     ldi r16,0xff		    ;R16 carga todos los pines como salida
     out ddrb,r16
-    ldi r19,0			    ;R19 será para el display
     
     ldi r16,0b00000100		    ;R22 es para mandar voltaje a los pines 2,3,4
     out pind,r16
@@ -152,15 +151,15 @@ memCinco:
     
 start:
     call pseudo
-    in r16,pind ;pin 0
+    in r19,pind ;pin 0
     // TERCER PIN
     call pseudo
     ldi r16,0b00000100
     out portd,r16
-    call kiloDelay
+    ;call kiloDelay
     
-    in r17,pind
-    cpi r17,0b00000110
+    in r19,pind
+    cpi r19,0b00000110
     breq reinicio
     
     call miniDelay
@@ -170,15 +169,15 @@ start:
     call pseudo
     ldi r16,0b00001000
     out portd,r16
-    call kiloDelay
+    ;call kiloDelay
     
     ldi r20,1
-    in r17,pind
-    cpi r17,0b00001001
+    in r19,pind
+    cpi r19,0b00001001
     breq cuatroUno
     ldi r20,2
-    in r17,pind
-    cpi r17,0b00001010
+    in r19,pind
+    cpi r19,0b00001010
     breq cuatroDos
     
     call miniDelay
@@ -188,15 +187,15 @@ start:
     call pseudo
     ldi r16,0b00010000
     out portd,r16
-    call kiloDelay
+    ;call kiloDelay
     
     ldi r20,3
-    in r17,pind
-    cpi r17,0b00010001
+    in r19,pind
+    cpi r19,0b00010001
     breq cincoUno
     ldi r20,4
-    in r17,pind
-    cpi r17,0b00010010
+    in r19,pind
+    cpi r19,0b00010010
     breq cincoDos
     
     call miniDelay
@@ -338,7 +337,7 @@ erroneo:
     rjmp inicio
 
 apagaD:
-    ldi r16,0
+    ldi r16,0x00
     out portd,r16
     ret
     
