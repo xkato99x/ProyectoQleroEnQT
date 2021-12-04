@@ -145,7 +145,7 @@ start:
     out portd,r16
     in r17,pind
     cpi r17,0b00000110
-    //breq reinicio
+    breq reinicio
     
     call miniDelay
     call apagaD
@@ -160,7 +160,7 @@ start:
     breq cuatroUno
     in r17,pind
     cpi r17,0b00001010
-    call cuatroDos
+    breq cuatroDos
     
     call miniDelay
     call apagaD
@@ -175,44 +175,13 @@ start:
     breq cincoUno
     in r17,pind
     cpi r17,0b00010010
-    call cincoDos
+    breq cincoDos
     
     call miniDelay
     call apagaD
     
     rjmp start
-    
-cuatroUno:	    ;Presionamos el botón del led AZUL
-    ldi r16,9
-    out portc,r16
-    call delay
-    call delay
-    call delay
-    call delay
-    sbis pind,0
-    rjmp compara
-    rjmp cuatroUno
-    
-cuatroDos:	    ;Presionamos el botón del led VERDE
-    ldi r16,8
-    out portc,r16
-    call delay
-    call delay
-    call delay
-    call delay
-    sbis pind,1
-    rjmp compara
-    rjmp cuatroDos
-
-cincoUno:		    ;Presionamos el botón del led ROJO
-    sbis pind,0
-    rjmp compara
-    rjmp cincoUno
-    
-cincoDos:	    	    ;Presionamos el botón del led AMARILLO
-    sbis pind,1
-    rjmp compara
-    rjmp cincoDos
+ 
 
 reinicio:
     ldi r16,0
@@ -237,13 +206,32 @@ reinicio:
     
     rjmp sueltaReinicio
     
+cuatroUno:	    ;Presionamos el botón del led AZUL
+    sbis pind,0
+    rjmp compara
+    rjmp cuatroUno
+    
+cuatroDos:	    ;Presionamos el botón del led VERDE
+    sbis pind,1
+    rjmp compara
+    rjmp cuatroDos
+
+cincoUno:		    ;Presionamos el botón del led ROJO
+    sbis pind,0
+    rjmp compara
+    rjmp cincoUno
+    
+cincoDos:	    	    ;Presionamos el botón del led AMARILLO
+    sbis pind,1
+    rjmp compara
+    rjmp cincoDos
+    
 sueltaReinicio:
     sbis pind,1
     rjmp inicio
     rjmp reinicio
-    
 
- 
+
 compara:
     lds r16,0x100
     cpi r16,0
