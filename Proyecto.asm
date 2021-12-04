@@ -60,6 +60,7 @@ azul:
     ldi r16,0b00000001
     out portb,r16
     call delay
+    call delay
     call apagaB
     call delay
     call memoria
@@ -67,6 +68,7 @@ azul:
 verde:
     ldi r16,0b00000010
     out portb,r16
+    call delay
     call delay
     call apagaB
     call delay
@@ -76,6 +78,7 @@ rojo:
     ldi r16,0b00000100
     out portb,r16
     call delay
+    call delay
     call apagaB
     call delay
     call memoria
@@ -83,6 +86,7 @@ rojo:
 amarillo:
     ldi r16,0b00001000
     out portb,r16
+    call delay
     call delay
     call apagaB
     call delay
@@ -117,23 +121,33 @@ memoria:
     ret
     
 memUno:
-    sts 0x100,r31
+    mov r16,r31
+    inc r16
+    sts 0x100,r16
     rjmp start
     
 memDos:
-    sts 0x101,r31
+    mov r16,r31
+    inc r16
+    sts 0x101,r16
     rjmp start
     
 memTres:
-    sts 0x102,r31
+    mov r16,r31
+    inc r16
+    sts 0x102,r16
     rjmp start
     
 memCuatro:
-    sts 0x103,r31
+    mov r16,r31
+    inc r16
+    sts 0x103,r16
     rjmp start
     
 memCinco:
-    sts 0x104,r31
+    mov r16,r31
+    inc r16
+    sts 0x104,r16
     rjmp start
     
 start:
@@ -143,6 +157,8 @@ start:
     call pseudo
     ldi r16,0b00000100
     out portd,r16
+    call kiloDelay
+    
     in r17,pind
     cpi r17,0b00000110
     breq reinicio
@@ -154,10 +170,13 @@ start:
     call pseudo
     ldi r16,0b00001000
     out portd,r16
+    call kiloDelay
     
+    ldi r20,1
     in r17,pind
     cpi r17,0b00001001
     breq cuatroUno
+    ldi r20,2
     in r17,pind
     cpi r17,0b00001010
     breq cuatroDos
@@ -169,10 +188,13 @@ start:
     call pseudo
     ldi r16,0b00010000
     out portd,r16
+    call kiloDelay
     
+    ldi r20,3
     in r17,pind
     cpi r17,0b00010001
     breq cincoUno
+    ldi r20,4
     in r17,pind
     cpi r17,0b00010010
     breq cincoDos
@@ -182,8 +204,37 @@ start:
     
     rjmp start
  
-
 reinicio:
+    call pseudo
+    sbis pind,1
+    rjmp sueltaReinicio
+    rjmp reinicio
+    
+cuatroUno:	    ;Presionamos el botón del led AZUL
+    call pseudo
+    sbis pind,0
+    rjmp compara
+    rjmp cuatroUno
+    
+cuatroDos:	    ;Presionamos el botón del led VERDE
+    call pseudo
+    sbis pind,1
+    rjmp compara
+    rjmp cuatroDos
+
+cincoUno:		    ;Presionamos el botón del led ROJO
+    call pseudo
+    sbis pind,0
+    rjmp compara
+    rjmp cincoUno
+    
+cincoDos:	    	    ;Presionamos el botón del led AMARILLO
+    call pseudo
+    sbis pind,1
+    rjmp compara
+    rjmp cincoDos
+    
+sueltaReinicio:
     ldi r16,0
     out portb,r16
     call miniDelay
@@ -203,51 +254,77 @@ reinicio:
     out portb,r16
     call miniDelay
     call miniDelay
-    
-    rjmp sueltaReinicio
-    
-cuatroUno:	    ;Presionamos el botón del led AZUL
-    sbis pind,0
-    rjmp compara
-    rjmp cuatroUno
-    
-cuatroDos:	    ;Presionamos el botón del led VERDE
-    sbis pind,1
-    rjmp compara
-    rjmp cuatroDos
-
-cincoUno:		    ;Presionamos el botón del led ROJO
-    sbis pind,0
-    rjmp compara
-    rjmp cincoUno
-    
-cincoDos:	    	    ;Presionamos el botón del led AMARILLO
-    sbis pind,1
-    rjmp compara
-    rjmp cincoDos
-    
-sueltaReinicio:
-    sbis pind,1
     rjmp inicio
-    rjmp reinicio
-
 
 compara:
-    lds r16,0x100
-    cpi r16,0
-    ;breq UnPunto
+    cpi r21,0
+    breq unPunto
+    
+    cpi r21,1
+    breq dosPuntos
+    
+    cpi r21,2
+    breq tresPuntos
+    
+    cpi r21,3
+    breq cuatroPuntos
+    
+    cpi r21,4
+    breq cincoPuntos
     
     rjmp start
     
-UnPunto:
+unPunto:
+    ldi r21,1
+    lds r16,0x100
+    cp r16,r20
+    brne erroneo
+    call correcto
+    ret
     
+dosPuntos:
+    ldi r21,2
+    lds r16,0x101
+    cp r16,r20
+    brne erroneo
+    call correcto
+    ret
+    
+tresPuntos:
+    ldi r21,3
+    lds r16,0x102
+    cp r16,r20
+    brne erroneo
+    call correcto
+    ret
+    
+cuatroPuntos:
+    ldi r21,4
+    lds r16,0x103
+    cp r16,r20
+    brne erroneo
+    call correcto
+    ret
+    
+cincoPuntos:		;5 Puntos, fin del juego :DDDD
+    lds r16,0x104
+    cp r16,r20
+    brne erroneo
+    call fin
     ret
      
 correcto:
     in r16,portc
     inc r16
     out portc,r16
-    ret
+    ldi r16,0b00010000
+    out portb,r16
+    call delay
+    call delay
+    ldi r16,0
+    out portb,r16
+    call delay
+    rjmp random
     
 erroneo:
     ldi r16,0b00100000
@@ -258,7 +335,7 @@ erroneo:
     ldi r16,0
     out portb,r16
     out portc,r16
-    ret
+    rjmp inicio
 
 apagaD:
     ldi r16,0
@@ -275,42 +352,58 @@ pseu2:
     ldi r31,00
     ret
 
-delay:			;Inicio de la subrutina DELAY
-    ldi r16,0x02	;Carga a R18 con la cantidad de veces que se repetirán los ciclos 
-eti0: ldi r17,250	;Carga a R19 con el valor 250
-eti1: ldi r18,250	;Carga a R20 con el valor 250
-eti2: nop		;NOP = No Operación (4 uS por iteración)
-    dec r18		;Decrementa en 1 a R20
-    brne eti2	;Mientras ZF=0, brinca a ETI2
-    dec r17		;Decrementa en 1 a R19
-    brne eti1	;Mientras ZF=0, brinca a ETI1
-    dec r16		;Decrementa en 1 a R18
-    brne eti0	;Mientras ZF=0, brinca a ETI0
-    ret		;Retorna el control
+delay:
+    ldi r16,0x02
+    eti0: ldi r17,250
+    eti1: ldi r18,250
+    eti2: nop
+	dec r18
+	brne eti2
+	dec r17
+	brne eti1
+	dec r16
+	brne eti0
+	ret
     
 miniDelay:
     ldi r16,0x1
-eti3: ldi r17,200	;Carga a R19 con el valor 250
-eti4: ldi r18,200	;Carga a R20 con el valor 250
-eti5: nop		;NOP = No Operación (4 uS por iteración)
-    dec r18		;Decrementa en 1 a R20
-    brne eti5	;Mientras ZF=0, brinca a ETI2
-    dec r17		;Decrementa en 1 a R19
-    brne eti4	;Mientras ZF=0, brinca a ETI1
-    dec r16		;Decrementa en 1 a R18
-    brne eti3	;Mientras ZF=0, brinca a ETI0
-    ret		;Retorna el control
+    eti3: ldi r17,200
+    eti4: ldi r18,200
+    eti5: nop
+	dec r18
+	brne eti5
+	dec r17
+	brne eti4
+	dec r16
+	brne eti3
+	ret
     
 microDelay:
     ldi r16,0x1
-eti6: ldi r17,100	;Carga a R19 con el valor 250
-eti7: ldi r18,100	;Carga a R20 con el valor 250
-eti8: nop		;NOP = No Operación (4 uS por iteración)
-    dec r18		;Decrementa en 1 a R20
-    brne eti8	;Mientras ZF=0, brinca a ETI2
-    dec r17		;Decrementa en 1 a R19
-    brne eti7	;Mientras ZF=0, brinca a ETI1
-    dec r16		;Decrementa en 1 a R18
-    brne eti6	;Mientras ZF=0, brinca a ETI0
-    ret		;Retorna el control
+    eti6: ldi r17,100
+    eti7: ldi r18,100
+    eti8: nop
+	dec r18
+	brne eti8
+	dec r17
+	brne eti7
+	dec r16
+	brne eti6
+	ret
+
+kiloDelay:
+    ldi r16,0x4
+    eti9: ldi r17,250
+    eti10: ldi r18,250
+    eti11: nop
+	dec r18
+	brne eti11
+	dec r17
+	brne eti10
+	dec r16
+	brne eti9
+	ret
     
+fin:
+    ldi r16,0b00010000
+    out portb,r16
