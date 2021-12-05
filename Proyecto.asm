@@ -4,10 +4,9 @@
     ldi r16,0xff		    ;R16 carga todos los pines como salida
     out ddrb,r16
     
-    ldi r16,0b00000100		    ;R22 es para mandar voltaje a los pines 2,3,4
-    out pind,r16
-    
 inicio:
+    ldi r20,0
+    ldi r21,0
     ldi r16,0b00011100
     out ddrd,r16
     ldi r16,0
@@ -18,6 +17,9 @@ inicio:
     sts 0x102,r16
     sts 0x103,r16
     sts 0x104,r16
+    out pind,r16
+    ldi r16,0b00000100		    ;R22 es para mandar voltaje a los pines 2,3,4
+    out pind,r16
     
 boton_inicio:
     call pseudo
@@ -148,6 +150,54 @@ memCinco:
     inc r16
     sts 0x104,r16
     rjmp start
+    
+recuerda:
+    // Prender lo que salió la 1ra vez
+    /*lds r16,0x100
+    ldi r17,0
+    cpse r16,r17
+    out portb,r16
+    call delay
+    out portb,r17
+    ;call delay
+    
+    // Prender lo que salió la 2da vez
+    lds r16,0x101
+    ldi r17,0
+    cpse r16,r17
+    out portb,r16
+    call delay
+    out portb,r17
+    ;call delay
+    
+    // Prender lo que salió la 3ra vez
+    lds r16,0x102
+    ldi r17,0
+    cpse r16,r17
+    out portb,r16
+    call delay
+    out portb,r17
+    ;call delay
+    
+    //Prender lo que salió la 4ta vez
+    lds r16,0x103
+    ldi r17,0
+    cpse r16,r17
+    out portb,r16
+    call delay
+    out portb,r17
+    ;call delay
+    
+    //Prender lo que salió la 5ta vez
+    lds r16,0x104
+    ldi r17,0
+    cpse r16,r17
+    out portb,r16
+    call delay
+    out portb,r17
+    ;call delay
+    */
+    ret
     
 start:
     call pseudo
@@ -306,6 +356,9 @@ cuatroPuntos:
     ret
     
 cincoPuntos:		;5 Puntos, fin del juego :DDDD
+    in r16,portc
+    inc r16
+    out portc,r16
     lds r16,0x104
     cp r16,r20
     brne erroneo
@@ -323,6 +376,7 @@ correcto:
     ldi r16,0
     out portb,r16
     call delay
+    call recuerda
     rjmp random
     
 erroneo:
@@ -366,8 +420,8 @@ delay:
     
 miniDelay:
     ldi r16,0x1
-    eti3: ldi r17,200
-    eti4: ldi r18,200
+    eti3: ldi r17,150
+    eti4: ldi r18,100
     eti5: nop
 	dec r18
 	brne eti5
@@ -404,5 +458,10 @@ kiloDelay:
 	ret
     
 fin:
+    ldi r16,0
+    out portb,r16
+    out portd,r16
     ldi r16,0b00010000
     out portb,r16
+    call delay
+    rjmp fin
