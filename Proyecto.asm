@@ -18,7 +18,7 @@ inicio:
     sts 0x103,r16
     sts 0x104,r16
     out pind,r16
-    ldi r16,0b00000100		    ;R22 es para mandar voltaje a los pines 2,3,4
+    ldi r16,0b00000100
     out pind,r16
     
 boton_inicio:
@@ -34,7 +34,7 @@ suelta_1:
     rjmp suelta_1		    ;Si no se suelta el botón, se cicla
     
 led_inicio:
-    ldi r16,0b00000000		    ;Reinicia el registro R22
+    ldi r16,0b00000000
     out pind,r16		    ;Apaga el 
     call delay
     ldi r16,0b00010000
@@ -122,82 +122,162 @@ memoria:
     ret
     
 memUno:
+    /*in r25,portc
+    ldi r17,9
+    out portc,r17
+    call delay
+    out portc,r25*/
     mov r16,r31
     inc r16
     sts 0x100,r16
     rjmp start
     
 memDos:
+    /*in r25,portc
+    ldi r17,8
+    out portc,r17
+    call delay
+    out portc,r25*/
     mov r16,r31
     inc r16
     sts 0x101,r16
     rjmp start
     
 memTres:
+    /*in r25,portc
+    ldi r17,7
+    out portc,r17
+    call delay
+    out portc,r25*/
     mov r16,r31
     inc r16
     sts 0x102,r16
     rjmp start
     
 memCuatro:
+    /*in r25,portc
+    ldi r17,6
+    out portc,r17
+    call delay
+    out portc,r25*/
     mov r16,r31
     inc r16
     sts 0x103,r16
     rjmp start
     
 memCinco:
+    /*in r25,portc
+    ldi r17,0
+    out portc,r17
+    call delay
+    out portc,r25*/
     mov r16,r31
     inc r16
     sts 0x104,r16
     rjmp start
     
+convertidor:
+    cpi r22,1
+    breq conAzul
+    
+    cpi r22,2
+    breq conVerde
+    
+    cpi r22,3
+    breq conRojo
+    
+    cpi r22,4
+    breq conAmarillo
+
+    ret
+    
+conAzul:
+    ldi r22,0b00000001
+    ret
+    
+conVerde:
+    ldi r22,0b00000010
+    ret
+    
+conRojo:
+    ldi r22,0b00000100
+    ret
+    
+conAmarillo:
+    ldi r22,0b00001000
+    ret    
+    
+atajoRan:
+    rjmp random
+    
 recuerda:
     // Prender lo que salió la 1ra vez
-    /*lds r16,0x100
-    ldi r17,0
-    cpse r16,r17
-    out portb,r16
+    lds r22,0x100
+    cpi r22,0
+    breq atajoRan
+    call convertidor
+    out portb,r22
     call delay
-    out portb,r17
-    ;call delay
+    out portb,r22
+    call delay
+    ldi r22,0
+    out portb,r22
+    call delay
     
     // Prender lo que salió la 2da vez
-    lds r16,0x101
-    ldi r17,0
-    cpse r16,r17
-    out portb,r16
+    lds r22,0x101
+    cpi r22,0
+    breq atajoRan
+    call convertidor
+    out portb,r22
     call delay
-    out portb,r17
-    ;call delay
+    ldi r22,0
+    out portb,r22
+    call delay
     
     // Prender lo que salió la 3ra vez
-    lds r16,0x102
-    ldi r17,0
-    cpse r16,r17
-    out portb,r16
+    lds r22,0x102
+    cpi r22,0
+    breq atajoRan
+    call convertidor
+    out portb,r22
     call delay
-    out portb,r17
-    ;call delay
+    out portb,r22
+    call delay
+    ldi r22,0
+    out portb,r22
+    call delay
     
     //Prender lo que salió la 4ta vez
-    lds r16,0x103
-    ldi r17,0
-    cpse r16,r17
-    out portb,r16
+    lds r22,0x103
+    cpi r22,0
+    breq atajoRan
+    call convertidor
+    out portb,r22
     call delay
-    out portb,r17
-    ;call delay
+    out portb,r22
+    call delay
+    ldi r22,0
+    out portb,r22
+    call delay
     
     //Prender lo que salió la 5ta vez
-    lds r16,0x104
-    ldi r17,0
-    cpse r16,r17
-    out portb,r16
+    lds r22,0x104
+    cpi r22,0
+    breq atajoRand
+    call convertidor
+    out portb,r22
     call delay
-    out portb,r17
-    ;call delay
-    */
+    out portb,r22
+    call delay
+    ldi r22,0
+    out portb,r22
+    call delay
+    
     ret
+    
+atajoRand:
+    rjmp random
     
 start:
     call pseudo
@@ -284,25 +364,37 @@ cincoDos:	    	    ;Presionamos el botón del led AMARILLO
     rjmp cincoDos
     
 sueltaReinicio:
+    call pseudo
     ldi r16,0
     out portb,r16
-    call miniDelay
-    ldi r16,1
+    ldi r16,0b00000001
     out portb,r16
-    call miniDelay
-    ldi r16,2
+    call microDelay
+    ldi r16,0
     out portb,r16
-    call miniDelay
-    ldi r16,3
+    ldi r16,0b00000010
     out portb,r16
-    call miniDelay
-    ldi r16,4
+    call microDelay
+    ldi r16,0
     out portb,r16
-    call miniDelay
-    ldi r16,5
+    ldi r16,0b00000100
     out portb,r16
-    call miniDelay
-    call miniDelay
+    call microDelay
+    ldi r16,0
+    out portb,r16
+    ldi r16,0b00001000
+    out portb,r16
+    call microDelay
+    ldi r16,0
+    out portb,r16
+    ldi r16,0b00111111
+    out portb,r16
+    call kiloDelay
+    ldi r16,0
+    out portb,r16
+    call delay
+    ldi r16,0b00000100
+    out pind,r16
     rjmp inicio
 
 compara:
@@ -324,6 +416,7 @@ compara:
     rjmp start
     
 unPunto:
+    call pseudo
     ldi r21,1
     lds r16,0x100
     cp r16,r20
@@ -332,6 +425,7 @@ unPunto:
     ret
     
 dosPuntos:
+    call pseudo
     ldi r21,2
     lds r16,0x101
     cp r16,r20
@@ -340,6 +434,7 @@ dosPuntos:
     ret
     
 tresPuntos:
+    call pseudo
     ldi r21,3
     lds r16,0x102
     cp r16,r20
@@ -348,6 +443,7 @@ tresPuntos:
     ret
     
 cuatroPuntos:
+    call pseudo
     ldi r21,4
     lds r16,0x103
     cp r16,r20
@@ -356,6 +452,7 @@ cuatroPuntos:
     ret
     
 cincoPuntos:		;5 Puntos, fin del juego :DDDD
+    call pseudo
     in r16,portc
     inc r16
     out portc,r16
@@ -364,8 +461,9 @@ cincoPuntos:		;5 Puntos, fin del juego :DDDD
     brne erroneo
     call fin
     ret
-     
+    
 correcto:
+    call pseudo
     in r16,portc
     inc r16
     out portc,r16
@@ -377,7 +475,8 @@ correcto:
     out portb,r16
     call delay
     call recuerda
-    rjmp random
+    //rjmp random
+    ret 
     
 erroneo:
     ldi r16,0b00100000
@@ -389,7 +488,10 @@ erroneo:
     out portb,r16
     out portc,r16
     rjmp inicio
-
+    
+atajoReinicio:
+    rjmp reinicio
+    
 apagaD:
     ldi r16,0x00
     out portd,r16
@@ -432,8 +534,8 @@ miniDelay:
 	ret
     
 microDelay:
-    ldi r16,0x1
-    eti6: ldi r17,100
+    ldi r16,0x4
+    eti6: ldi r17,200
     eti7: ldi r18,100
     eti8: nop
 	dec r18
@@ -463,5 +565,10 @@ fin:
     out portd,r16
     ldi r16,0b00010000
     out portb,r16
+    ldi r16,0b00000100
+    out pind,r16
+    in r19,pind
+    cpi r19,0b00000110
+    breq atajoReinicio
     call delay
     rjmp fin
