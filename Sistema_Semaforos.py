@@ -64,6 +64,12 @@ def imprime(sem):
         num = random.radint(0,3)
         print(num)
         
+
+def cierra():
+    arduino.close()
+    print("Adios!")
+    raiz.destroy()
+        
         
 
 raiz = Tk()
@@ -76,6 +82,9 @@ bot.place(x=30, y=50)
 
 bot2 = Button(raiz, text="Error", command=envia)
 bot2.place(x=30, y=80)
+
+cerrar = Button(raiz, text="Cierra", command=cierra)
+cerrar.place(x=0, y=0)
 
 #Colores de los semaforos
 lab1 = Label(raiz, text="Semaforos en verde", background='lightgreen',
