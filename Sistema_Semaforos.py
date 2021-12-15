@@ -1,10 +1,10 @@
 from tkinter import *
 import time as tm
 import threading as th
-import serial
+import serial, random
 
 arduino = serial.Serial('/dev/ttyS1', 9600)
-tm.sleep(1)
+tm.sleep(0.8)
 
 global con
 con = 0
@@ -24,7 +24,7 @@ def recibe():
                 print("Cadena:", cad[:esp])
                 print("Long:", len(cad[:esp]))
                 imprime(cad[:esp])
-            tm.sleep(0.5)
+            tm.sleep(0.3)
             
 def envia():
     arduino.write('e'.encode())
@@ -44,7 +44,7 @@ def imprime(sem):
         rojo1.config(text="Semaforo3")
         rojo2.config(text="")
         
-    elif sem == "vuelta":
+    elif sem == "vuel":
         
         verde1.config(text="Semaforo1")
         verde2.config(text="")
@@ -60,7 +60,9 @@ def imprime(sem):
         rojo2.config(text="Semaforo2")
         
     else:
-        carros1.config(text=str(sem))
+        carros1.config(text=sem)
+        num = random.radint(0,3)
+        print(num)
         
         
 
@@ -88,26 +90,41 @@ lab1 = Label(raiz, text="Semaforos en rojo", background='red',
             border=1)
 lab1.place(x=406, y=50)
 
-lab1 = Label(raiz, text="Carros", border=1)
-lab1.place(x=145, y=120)
+lab1 = Label(raiz, text="Carros transcurriendo", border=1)
+lab1.place(x=233, y=120)
 
-carros1 = Label(raiz, text="")
-carros1.place(x=160, y=135)
+lab1 = Label(raiz, text="Semaforo 1", border=1)
+lab1.place(x=145, y=145)
+
+lab1 = Label(raiz, text="Semaforo 2", border=1)
+lab1.place(x=265, y=145)
+
+lab1 = Label(raiz, text="Semaforo 3", border=1)
+lab1.place(x=385, y=145)
+
+carros1 = Label(raiz, text="3")
+carros1.place(x=180, y=165)
+
+carros2 = Label(raiz, text="3")
+carros2.place(x=305, y=165)
+
+carros3 = Label(raiz, text="3")
+carros3.place(x=420, y=165)
 
 
 #Etiquetas de los semaforos que cambian
 verde1 = Label(raiz, text="")
-verde1.place(x=120, y=73)
+verde1.place(x=125, y=73)
 verde2 = Label(raiz, text="")
-verde2.place(x=120, y=88)
+verde2.place(x=125, y=88)
 
 ama1 = Label(raiz, text="")
-ama1.place(x=265, y=73)
+ama1.place(x=270, y=73)
 ama2 = Label(raiz, text="")
-ama2.place(x=265, y=88)
+ama2.place(x=270, y=88)
 
 rojo1 = Label(raiz, text="")
-rojo1.place(x=420, y=73)
+rojo1.place(x=425, y=73)
 rojo2 = Label(raiz, text="")
-rojo2.place(x=420, y=88)
+rojo2.place(x=425, y=88)
 raiz.mainloop()
