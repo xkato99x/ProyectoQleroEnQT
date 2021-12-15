@@ -1,8 +1,12 @@
-int greenDelay = 1000;
+/*int greenDelay = 1000;
 int orangeDelay = 500;
 int redDelay = 950;
-int vueltaMil = 950;
+int vueltaMil = 950;*/
 
+int greenDelay = 400;
+int orangeDelay = 200;
+int redDelay = 380;
+int vueltaMil = 380;
 
 // semaforo1
 int vuelta = 5;
@@ -70,6 +74,10 @@ void setup() {
   digitalWrite(r3Pin, HIGH);
   Serial.begin(9600);
   Serial.println(" vuel");
+  Serial.println(" c1");
+  Serial.println(" c2");
+  Serial.println(" c3");
+  
 }
 
 int i = 0;
@@ -122,25 +130,27 @@ void loop() {
   if (digitalRead(inf1) == HIGH) {
 
     while (digitalRead(inf1) == HIGH) {}
-    cont1++;
-    char cad1 = char(cont1);
-    Serial.println(' ' + cad1);
+    /*cont1++;
+    char cad1 = char(cont1);*/
+    Serial.println(" c1");
 
-  }/*  if (digitalRead(inf2) == HIGH) {
+  }
+  if (digitalRead(inf2) == HIGH) {
 
     while (digitalRead(inf2) == HIGH) {}
-    cont1++;
-    char cad2 = char(cont1);
-    Serial.println(' ' + cad2);
+    /*cont1++;
+    char cad2 = char(cont1);*/
+    Serial.println(" c2");
 
-  }  if (digitalRead(A1) == HIGH) {
+  }
+  if (analogRead(A1) == HIGH) {
 
-    while (digitalRead(A1) == HIGH) {}
-    cont1++;
-    char cad3 = char(cont1);
-    Serial.println(' ' + cad3);
+    while (analogRead(A1) == HIGH) {}
+    /*cont1++;
+    char cad3 = char(cont1);*/
+    Serial.println(" c3");
 
-  }*/
+  }
 
   if (tiempoActual - vueltaMillis >= vueltaMil
       && vueltaStatus == true && red2Status == true) {
@@ -155,7 +165,7 @@ void loop() {
 
   } else if (tiempoActual - greenMillis >= greenDelay
              && green1Status == true && red2Status == true) {
-
+    // Si pasó el segundo que debe estar encendido el verde, amarillo = millis, apaga los 2 verdes, cambia los estados y prende los amarillos
     orangeMillis = millis();
     digitalWrite(g1Pin, LOW);
     digitalWrite(g2Pin, LOW);
@@ -164,10 +174,11 @@ void loop() {
     digitalWrite(o1Pin, HIGH);
     digitalWrite(o2Pin, HIGH);
     orange1Status = true;
-
+    
+    
   } else if (tiempoActual - orangeMillis >= orangeDelay
              && orange1Status == true) {
-
+    //Se apagan los amarillos, prenden los rojos (enciende el sem 3) y cambian los estados
     redMillis = millis();
     digitalWrite(o1Pin, LOW);
     digitalWrite(o2Pin, LOW);
@@ -184,6 +195,7 @@ void loop() {
     green2Status = true;
     green2Millis = millis();
     Serial.println(" v2");
+    
 
   } else if (tiempoActual - green2Millis >= greenDelay
              && green2Status == true) {
